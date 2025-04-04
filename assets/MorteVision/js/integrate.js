@@ -235,6 +235,10 @@ function startTimer() {
             document.title = "Presentation Queue | Nighthawk Pages"
         }
     }, 1000);
+
+    if (document.getElementById("presentation") == "presentation") {
+        broadcast()
+    }
 }
 
 // ensure accessible outside of current module
