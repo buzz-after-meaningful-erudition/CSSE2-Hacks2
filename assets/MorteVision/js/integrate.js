@@ -118,7 +118,6 @@ async function captureScreen() {
         document.getElementById("mortStream").srcObject = mediaStream;
         
         document.getElementById("endBroadcastButton").style.display = "flex";
-        document.getElementById("broadcastButton").style.display = "none";
         
         return mediaStream;
     } catch (ex) {
@@ -218,6 +217,12 @@ document.getElementById('removeQueue').addEventListener('click', removeFromQueue
 
 // timer function to start countdown for person
 function startTimer() {
+    console.log(document.getElementById("presentation"))
+    if (document.getElementById("presentation").value == 'presentation') {
+        console.log("test")
+        broadcast()
+    }
+
     let time = timerlength;
     document.getElementById('beginTimer').style.display = 'none';
     timerInterval = setInterval(() => {
@@ -235,10 +240,6 @@ function startTimer() {
             document.title = "Presentation Queue | Nighthawk Pages"
         }
     }, 1000);
-
-    if (document.getElementById("presentation") == "presentation") {
-        broadcast()
-    }
 }
 
 // ensure accessible outside of current module
@@ -355,10 +356,6 @@ async function toggleGroupInQueue() {
     // Refresh the queue display
     fetchQueue();
 }
-
-// Attach event listener to the toggle button
-document.getElementById('customToggleBtn').addEventListener('click', toggleGroupInQueue);
-
 
 // update display - ran periodically
 function updateQueueDisplay(queue) {
