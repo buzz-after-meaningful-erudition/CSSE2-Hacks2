@@ -16,6 +16,9 @@ class GameLevel {
     
     // Initialize continue flag
     this.continue = true
+    
+    // Create the game environment
+    this.gameEnv.create()
   }
 
   create(GameLevelClass) {
