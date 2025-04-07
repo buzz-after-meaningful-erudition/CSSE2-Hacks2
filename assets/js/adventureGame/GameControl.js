@@ -54,8 +54,8 @@ class GameControl {
     transitionToLevel() {
         try {
             if (this.currentLevelIndex >= this.levelClasses.length) {
-                console.error('Level index out of bounds:', this.currentLevelIndex);
-                return;
+                console.log('All levels completed, restarting from the beginning');
+                this.currentLevelIndex = 0; // Reset to first level
             }
             
             const GameLevelClass = this.levelClasses[this.currentLevelIndex];
@@ -66,6 +66,11 @@ class GameControl {
             }
             
             console.log(`Transitioning to level ${this.currentLevelIndex}: ${GameLevelClass.name}`);
+            
+            // Clean up previous level if it exists
+            if (this.currentLevel) {
+                this.currentLevel.destroy();
+            }
             
             this.currentLevel = new GameLevel(this);
             this.currentLevel.create(GameLevelClass);
