@@ -3,7 +3,7 @@ class Block {
       this.gameEnv = gameEnv;
       this.width = 50; // Width of the block
       this.height = 50; // Height of the block
-      this.x = Math.random() * (gameEnv.innerWidth - this.width); // Random starting horizontal position
+      this.x = Math.random() * (gameEnv.innerWidth - this.width); // Random horizontal position
       this.y = 0; // Start from top of the screen
       this.speed = 2; // Falling speed
       this.color = 'red'; // Color of the block
@@ -13,9 +13,8 @@ class Block {
       this.y += this.speed; // Block falls down
   
       if (this.y > this.gameEnv.innerHeight) { 
-        // If block hits the bottom, reset it to the top and move the column
+        // If block hits the bottom, reset it to the top
         this.y = -this.height;
-        this.x = Math.random() * (this.gameEnv.innerWidth - this.width); // New random horizontal position
       }
     }
   
@@ -27,3 +26,4 @@ class Block {
   }
   
   export default Block;
+  
