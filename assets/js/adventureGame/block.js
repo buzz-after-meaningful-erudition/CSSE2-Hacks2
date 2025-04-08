@@ -1,29 +1,30 @@
 class Block {
     constructor(gameEnv) {
       this.gameEnv = gameEnv;
-      this.width = 50; // Width of the block
-      this.height = 50; // Height of the block
-      this.x = Math.random() * (gameEnv.innerWidth - this.width); // Random horizontal position
-      this.y = 0; // Start from top of the screen
-      this.speed = 2; // Falling speed
-      this.color = 'red'; // Color of the block
+      this.width = 50;
+      this.height = 50;
+      this.x = Math.random() * (gameEnv.innerWidth - this.width);
+      this.y = 0;
+      this.speed = 2;
+      this.acceleration = 0.1; // New: acceleration value
+      this.color = 'red';
     }
   
     update() {
-      this.y += this.speed; // Block falls down
+      this.speed += this.acceleration; // Accelerate
+      this.y += this.speed;
   
-      if (this.y > this.gameEnv.innerHeight) { 
-        // If block hits the bottom, reset it to the top
+      if (this.y > this.gameEnv.innerHeight) {
         this.y = -this.height;
+        this.speed = 2; // Reset speed on respawn
       }
     }
   
     render() {
-      const ctx = this.gameEnv.context; // Assuming you have a context for drawing
+      const ctx = this.gameEnv.context;
       ctx.fillStyle = this.color;
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
   }
   
   export default Block;
-  
