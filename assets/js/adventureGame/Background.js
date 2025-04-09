@@ -50,7 +50,6 @@ export class Background extends GameObject {
         // align the canvas to the gameCanvas, Layered
         const gameCanvas = document.getElementById("gameCanvas");
         if (!gameCanvas) {
-            console.error("Game canvas not found");
             return;
         }
         this.canvas.width = gameCanvas.width;

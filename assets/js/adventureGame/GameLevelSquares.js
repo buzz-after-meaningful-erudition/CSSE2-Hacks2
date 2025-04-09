@@ -8,7 +8,6 @@ import PlayerTwo from './PlayerTwo.js';
 class GameLevelSquares extends GameObject {
   constructor(gameEnv) {
     super(gameEnv);
-    console.log('GameLevelSquares constructor called');
     
     // Store reference to game environment
     this.gameEnv = gameEnv;
@@ -17,8 +16,6 @@ class GameLevelSquares extends GameObject {
     // Values dependent on gameEnv
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
-    
-    console.log(`Game environment dimensions: ${width}x${height}`);
     
     // Background data
     const background_data = {
@@ -57,8 +54,6 @@ class GameLevelSquares extends GameObject {
         hitbox: { widthPercentage: 0.1, heightPercentage: 0.1 },
         keypress: { up: 73, left: 74, down: 75, right: 76 } // I, J, K, L
     };
-
-    console.log("Setting up classes for GameLevelSquares");
     
     this.classes = [      
       { class: Background, data: background_data },
@@ -68,20 +63,13 @@ class GameLevelSquares extends GameObject {
     
     // Track instances of created objects for easier cleanup
     this.instances = [];
-    
-    console.log("GameLevelSquares constructor finished");
   }
 
   // Implementation of required methods for compatibility
   initialize() {
-    console.log("GameLevelSquares initialize called");
-    
     // Store references to the instances for later access
     if (this.gameEnv && this.gameEnv.gameObjects) {
       this.instances = [...this.gameEnv.gameObjects];
-      console.log(`GameLevelSquares initialized with ${this.instances.length} game objects`);
-    } else {
-      console.warn("gameEnv or gameObjects is undefined in initialize");
     }
   }
   
@@ -93,9 +81,7 @@ class GameLevelSquares extends GameObject {
       const playerTwo = this.instances[2];
       
       // Simple collision detection
-      if (this.checkCollision(playerOne, playerTwo)) {
-        console.log("Players collided!");
-      }
+      this.checkCollision(playerOne, playerTwo);
     }
   }
 
@@ -119,12 +105,8 @@ class GameLevelSquares extends GameObject {
   }
   
   destroy() {
-    console.log("GameLevelSquares destroy called");
-    
     // Clear instances array
     this.instances = [];
-    
-    console.log("GameLevelSquares destroy finished");
   }
 }
 

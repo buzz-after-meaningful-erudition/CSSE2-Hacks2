@@ -14,30 +14,21 @@ export class BackgroundParallax extends GameObject {
     constructor(data = null, gameEnv = null) {
         super(gameEnv);
         
-        console.log("BackgroundParallax constructor called", data);
-        
         if (!data || !data.src) {
-            console.error('BackgroundParallax requires a src property in data', data);
             throw new Error('BackgroundParallax requires a src property in data');
         }
         
         this.data = data;
         this.position = data.position || { x: 0, y: 0 };
         this.velocity = data.velocity || 1;
-        this.logCounter = 0; // Counter to reduce log frequency
         
         // Set the properties of the background
         this.image = new Image();
         this.image.src = data.src;
         this.isInitialized = false; // Flag to track initialization
         
-        // Create debug overlay
-        this.createDebugOverlay();
-        
         // Finish initializing the background after the image loads 
         this.image.onload = () => {
-            console.log("BackgroundParallax image loaded:", data.src);
-            
             // Width and height come from the image
             this.width = this.image.width;
             this.height = this.image.height;
@@ -64,63 +55,7 @@ export class BackgroundParallax extends GameObject {
             }
             
             this.isInitialized = true; // Mark as initialized
-            
-            console.log("BackgroundParallax initialized:", {
-                id: this.canvas.id,
-                width: this.canvas.width,
-                height: this.canvas.height,
-                zIndex: this.canvas.style.zIndex,
-                opacity: this.canvas.style.opacity
-            });
         };
-        
-        this.image.onerror = (error) => {
-            console.error("Error loading background parallax image:", data.src, error);
-        };
-    }
-    
-    /**
-     * Create a debug overlay to show status
-     */
-    createDebugOverlay() {
-        this.debugOverlay = document.createElement('div');
-        this.debugOverlay.style.position = 'fixed';
-        this.debugOverlay.style.top = '10px';
-        this.debugOverlay.style.left = '10px';
-        this.debugOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-        this.debugOverlay.style.color = 'white';
-        this.debugOverlay.style.padding = '10px';
-        this.debugOverlay.style.zIndex = '9999';
-        this.debugOverlay.style.fontFamily = 'monospace';
-        this.debugOverlay.style.fontSize = '12px';
-        this.debugOverlay.style.maxWidth = '300px';
-        this.debugOverlay.innerHTML = 'Parallax Debug: Initializing...';
-        document.body.appendChild(this.debugOverlay);
-    }
-    
-    /**
-     * Update debug overlay with current state
-     */
-    updateDebugOverlay() {
-        if (!this.debugOverlay) return;
-        
-        // Only update every 30 frames to reduce overhead
-        if (this.logCounter++ % 30 !== 0) return;
-        
-        const status = this.isInitialized ? 'Initialized' : 'Not Initialized';
-        const imageStatus = this.image.complete ? 'Loaded' : 'Loading';
-        const canvasInfo = this.canvas ? 
-            `Canvas: ${this.canvas.width}x${this.canvas.height}, z-index: ${this.canvas.style.zIndex}, opacity: ${this.canvas.style.opacity}` :
-            'Canvas: Not created';
-        
-        this.debugOverlay.innerHTML = `
-            <div>Parallax Debug:</div>
-            <div>Status: ${status}</div>
-            <div>Image: ${imageStatus} (${this.image.src.split('/').pop()})</div>
-            <div>${canvasInfo}</div>
-            <div>Position: X=${this.position.x.toFixed(2)}, Y=${this.position.y.toFixed(2)}</div>
-            <div>Velocity: ${this.velocity}</div>
-        `;
     }
 
     /**
@@ -130,7 +65,6 @@ export class BackgroundParallax extends GameObject {
         // align the canvas to the gameCanvas, Layered
         const gameCanvas = document.getElementById("gameCanvas");
         if (!gameCanvas) {
-            console.error("Game canvas not found");
             return;
         }
         
@@ -144,9 +78,6 @@ export class BackgroundParallax extends GameObject {
      * Update is called by GameLoop on all GameObjects 
      */
     update() {
-        // Update debug info first (throttled internally)
-        this.updateDebugOverlay();
-        
         // Update the position for parallax scrolling
         this.position.x -= this.velocity; // Move left
         this.position.y += this.velocity; // Move down (for snowfall effect)
@@ -207,7 +138,6 @@ export class BackgroundParallax extends GameObject {
      * Resize method is called by resize listener on all GameObjects
      */
     resize() {
-        console.log("BackgroundParallax resize called");
         this.alignCanvas(); // Align the canvas to the gameCanvas
         this.draw(); // Redraw the canvas after resizing
     }
@@ -216,13 +146,6 @@ export class BackgroundParallax extends GameObject {
      * Destroy method to clean up resources
      */
     destroy() {
-        console.log("BackgroundParallax destroy called");
-        
-        // Remove debug overlay
-        if (this.debugOverlay && this.debugOverlay.parentNode) {
-            this.debugOverlay.parentNode.removeChild(this.debugOverlay);
-        }
-        
         // Check if canvas exists before trying to remove it
         if (this.canvas && this.canvas.parentNode) {
             this.canvas.parentNode.removeChild(this.canvas);

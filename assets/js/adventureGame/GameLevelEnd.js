@@ -4,16 +4,23 @@ import Player from './Player.js';
 import Npc from './Npc.js';
 import Quiz from './Quiz.js';
 import GameControl from './GameControl.js';
+import UsernameManager from './UsernameManager.js'; // Import the new UsernameManager
 
 class GameLevelEnd {
   constructor(gameEnv) {
     console.log("Initializing GameLevelEnd...");
+    
+    // Store the game environment
+    this.gameEnv = gameEnv;
     
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
     
     console.log("GameLevelEnd dimensions:", {width, height, path});
+
+    // Create username manager
+    this.usernameManager = new UsernameManager(gameEnv);
 
     // Validate path and create debug button
     this.createPathDebugger(path);
@@ -119,6 +126,18 @@ class GameLevelEnd {
   }
   
   /**
+   * Initialize the level and show username prompt
+   */
+  async initialize() {
+    console.log("GameLevelEnd initialize called");
+    
+    // Initialize the username manager
+    await this.usernameManager.initialize();
+    
+    console.log("Username manager initialized, username:", this.usernameManager.getUsername());
+  }
+  
+  /**
    * Test if an image exists by trying to load it
    */
   testImageExists(imageSrc, label) {
@@ -210,6 +229,26 @@ class GameLevelEnd {
     };
     
     document.body.appendChild(debugBtn);
+  }
+  
+  /**
+   * Update method to perform per-frame updates
+   */
+  update() {
+    // Call username manager update to ensure username is displayed
+    if (this.usernameManager) {
+      this.usernameManager.update();
+    }
+  }
+  
+  /**
+   * Clean up resources when level is destroyed
+   */
+  destroy() {
+    // Clean up username manager
+    if (this.usernameManager) {
+      this.usernameManager.destroy();
+    }
   }
 }
 
