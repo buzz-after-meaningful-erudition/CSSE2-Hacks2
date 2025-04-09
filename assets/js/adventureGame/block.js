@@ -8,11 +8,20 @@ class Block {
     this.x = Math.random() * (gameEnv.innerWidth - this.width);
     this.y = 0; // Start from top of the screen
     
-    this.baseSpeed = 2; // Initial falling speed
+    // Speed and physics properties
+    this.baseSpeed = 1; // Initial falling speed
     this.speed = this.baseSpeed;
-    this.speedMultiplier = 1.05; // Exponential growth factor
-    this.maxSpeed = 15; // Maximum speed cap
-    this.fallCount = 0; // Track how many times the block has fallen
+    this.acceleration = 0.2; // Acceleration per frame
+    this.maxSpeed = 20; // Maximum speed cap
+    this.bounceForce = -10; // Force of bounce (negative to go up)
+    this.gravity = 0.4; // Gravity effect
+    this.bounceDecay = 0.6; // Bounce decay factor (0-1, lower means more dampening)
+    this.bounceCount = 0; // Track bounces for a single fall
+    this.maxBounces = 2; // Maximum number of bounces before resetting
+    this.fallCount = 0; // Track how many times the block has fallen completely
+    
+    // State flags
+    this.isBouncing = false;
     
     // Random color generation for visual variety
     this.colors = ['red', 'blue', 'green', 'purple', 'orange', 'yellow'];
@@ -32,31 +41,73 @@ class Block {
   }
 
   update() {
-    // Exponentially increase the speed
-    this.speed = Math.min(this.baseSpeed * Math.pow(this.speedMultiplier, this.fallCount), this.maxSpeed);
+    // Apply gravity and acceleration
+    if (!this.isBouncing) {
+      // Exponential acceleration during fall
+      this.speed += this.acceleration * (1 + this.y / (this.gameEnv.innerHeight / 2));
+      this.speed = Math.min(this.speed, this.maxSpeed);
+    } else {
+      // Apply gravity during bounce
+      this.speed += this.gravity;
+    }
     
     // Update vertical position
     this.y += this.speed;
 
     // Check if block hit the bottom
-    if (this.y > this.gameEnv.innerHeight) { 
-      // Reset position to top
-      this.y = -this.height;
-      
-      // Change to a new random column
-      this.x = Math.random() * (this.gameEnv.innerWidth - this.width);
-      
-      // Increase fall count for speed calculation
-      this.fallCount++;
-      
-      // Change color on each reset
-      this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
-      this.element.style.backgroundColor = this.color;
+    if (this.y > this.gameEnv.innerHeight - this.height && this.speed > 0) { 
+      // Bounce behavior
+      if (this.bounceCount < this.maxBounces) {
+        // Calculate bounce force based on impact speed and decay
+        let bounceStrength = this.bounceForce * Math.min(this.speed / 10, 1) * Math.pow(this.bounceDecay, this.bounceCount);
+        this.speed = bounceStrength;
+        this.isBouncing = true;
+        this.bounceCount++;
+        
+        // Ensure the block doesn't go below the ground
+        this.y = this.gameEnv.innerHeight - this.height;
+      } else {
+        // Reset after max bounces
+        this.resetBlock();
+      }
+    }
+    
+    // Check if block reached top of bounce
+    if (this.isBouncing && this.speed >= 0) {
+      this.isBouncing = false;
     }
     
     // Update HTML element position
     this.element.style.top = this.y + 'px';
     this.element.style.left = this.x + 'px';
+    
+    // Add subtle rotation effect based on movement for visual interest
+    const rotation = Math.sin(this.y / 50) * 10;
+    this.element.style.transform = `rotate(${rotation}deg)`;
+  }
+  
+  resetBlock() {
+    // Reset position to top
+    this.y = -this.height - Math.random() * 200; // Stagger the heights
+    
+    // Change to a new random column
+    this.x = Math.random() * (this.gameEnv.innerWidth - this.width);
+    
+    // Reset physics
+    this.speed = this.baseSpeed;
+    this.bounceCount = 0;
+    this.isBouncing = false;
+    
+    // Increase fall count for difficulty progression
+    this.fallCount++;
+    
+    // Increase base difficulty slightly
+    this.baseSpeed += 0.1;
+    this.acceleration += 0.01;
+    
+    // Change color on each reset
+    this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+    this.element.style.backgroundColor = this.color;
   }
 
   render(ctx) {

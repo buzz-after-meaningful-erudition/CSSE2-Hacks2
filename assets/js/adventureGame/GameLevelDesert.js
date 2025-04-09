@@ -92,12 +92,15 @@ class GameLevelDesert {
         }
     };
 
-    // Create falling blocks array
+    // Game state
     this.blocks = [];
     this.blockCount = 5; // Number of falling blocks
     this.player = null;
     this.score = 0;
     this.isGameActive = true;
+    this.difficultyMultiplier = 1.0;
+    this.lastSpeedUpTime = Date.now();
+    this.speedUpInterval = 10000; // Increase difficulty every 10 seconds
     
     // Score display
     this.scoreElement = document.createElement('div');
@@ -114,13 +117,34 @@ class GameLevelDesert {
     this.scoreElement.textContent = 'Score: 0';
     document.body.appendChild(this.scoreElement);
     
-    // Initialize blocks
+    // Game instructions
+    this.instructionsElement = document.createElement('div');
+    this.instructionsElement.style.position = 'absolute';
+    this.instructionsElement.style.top = '10px';
+    this.instructionsElement.style.left = '10px';
+    this.instructionsElement.style.padding = '10px';
+    this.instructionsElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    this.instructionsElement.style.color = 'white';
+    this.instructionsElement.style.fontSize = '14px';
+    this.instructionsElement.style.fontFamily = 'Arial, sans-serif';
+    this.instructionsElement.style.borderRadius = '5px';
+    this.instructionsElement.style.zIndex = '1000';
+    this.instructionsElement.style.maxWidth = '300px';
+    this.instructionsElement.innerHTML = 'Desert Challenge: Collect the falling blocks for points!<br>Faster blocks = More points!<br>Press P to pause.';
+    document.body.appendChild(this.instructionsElement);
+    
+    // Initialize blocks with staggered positions
     for (let i = 0; i < this.blockCount; i++) {
-      this.blocks.push(new Block(gameEnv));
+      const block = new Block(gameEnv);
+      block.y = -block.height - (i * 200); // Stagger initial positions
+      this.blocks.push(block);
     }
 
     // Set up game loop
     this.startGameLoop();
+
+    // Pause control
+    this.setupPauseControl();
 
     // List of objects definitions for this level
     this.classes = [
@@ -130,11 +154,51 @@ class GameLevelDesert {
     ];
 
     // Listen for level creation to get player reference
-    document.addEventListener('LevelCreated', (event) => {
+    this.onLevelCreated = (event) => {
       // Find player in the game objects
       const gameObjects = event.detail?.gameObjects || [];
       this.player = gameObjects.find(obj => obj instanceof Player);
-    });
+    };
+    
+    document.addEventListener('LevelCreated', this.onLevelCreated);
+  }
+
+  // Set up pause control
+  setupPauseControl() {
+    this.pauseHandler = (e) => {
+      if (e.key === 'p' || e.key === 'P') {
+        if (this.isGameActive) {
+          this.pause();
+          
+          // Show pause message
+          this.pauseMessage = document.createElement('div');
+          this.pauseMessage.style.position = 'absolute';
+          this.pauseMessage.style.top = '50%';
+          this.pauseMessage.style.left = '50%';
+          this.pauseMessage.style.transform = 'translate(-50%, -50%)';
+          this.pauseMessage.style.padding = '20px';
+          this.pauseMessage.style.backgroundColor = 'rgba(0,0,0,0.8)';
+          this.pauseMessage.style.color = 'white';
+          this.pauseMessage.style.fontSize = '24px';
+          this.pauseMessage.style.fontFamily = 'Arial, sans-serif';
+          this.pauseMessage.style.borderRadius = '10px';
+          this.pauseMessage.style.zIndex = '2000';
+          this.pauseMessage.style.textAlign = 'center';
+          this.pauseMessage.innerHTML = 'PAUSED<br><span style="font-size:16px">Press P to resume</span>';
+          document.body.appendChild(this.pauseMessage);
+        } else {
+          this.resume();
+          
+          // Remove pause message
+          if (this.pauseMessage && this.pauseMessage.parentNode) {
+            this.pauseMessage.parentNode.removeChild(this.pauseMessage);
+            this.pauseMessage = null;
+          }
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', this.pauseHandler);
   }
 
   // Start the game loop
@@ -155,24 +219,60 @@ class GameLevelDesert {
 
   // Update method for game loop
   update() {
+    // Gradually increase difficulty over time
+    const currentTime = Date.now();
+    if (currentTime - this.lastSpeedUpTime > this.speedUpInterval) {
+      this.difficultyMultiplier += 0.1;
+      this.lastSpeedUpTime = currentTime;
+    }
+    
     // Update each block
     this.blocks.forEach(block => {
       block.update();
       
       // Check for collision with player
       if (this.player && block.checkCollision(this.player)) {
-        // Increase score
-        this.score += Math.floor(block.speed);
+        // Calculate score based on speed - faster blocks give more points
+        const pointsEarned = Math.floor(block.speed * 2);
+        this.score += pointsEarned;
         this.scoreElement.textContent = `Score: ${this.score}`;
         
+        // Show points animation
+        this.showPointsAnimation(pointsEarned, this.player.position.x, this.player.position.y);
+        
         // Reset block
-        block.y = -block.height;
-        block.x = Math.random() * (this.gameEnv.innerWidth - block.width);
-        block.fallCount++;
-        block.color = block.colors[Math.floor(Math.random() * block.colors.length)];
-        block.element.style.backgroundColor = block.color;
+        block.resetBlock();
       }
     });
+  }
+  
+  // Show points animation
+  showPointsAnimation(points, x, y) {
+    const pointsElement = document.createElement('div');
+    pointsElement.textContent = `+${points}`;
+    pointsElement.style.position = 'absolute';
+    pointsElement.style.left = `${x}px`;
+    pointsElement.style.top = `${y - 20}px`;
+    pointsElement.style.color = 'gold';
+    pointsElement.style.fontWeight = 'bold';
+    pointsElement.style.fontSize = '18px';
+    pointsElement.style.textShadow = '1px 1px 2px black';
+    pointsElement.style.zIndex = '1500';
+    pointsElement.style.transition = 'all 1s ease-out';
+    document.body.appendChild(pointsElement);
+    
+    // Animate the points floating up and fading out
+    setTimeout(() => {
+      pointsElement.style.top = `${y - 60}px`;
+      pointsElement.style.opacity = '0';
+    }, 10);
+    
+    // Remove the element after animation completes
+    setTimeout(() => {
+      if (pointsElement.parentNode) {
+        pointsElement.parentNode.removeChild(pointsElement);
+      }
+    }, 1000);
   }
 
   // Pause the game
@@ -206,13 +306,22 @@ class GameLevelDesert {
       this.blocks = [];
     }
     
-    // Remove score display
+    // Remove UI elements
     if (this.scoreElement && this.scoreElement.parentNode) {
       this.scoreElement.parentNode.removeChild(this.scoreElement);
     }
     
+    if (this.instructionsElement && this.instructionsElement.parentNode) {
+      this.instructionsElement.parentNode.removeChild(this.instructionsElement);
+    }
+    
+    if (this.pauseMessage && this.pauseMessage.parentNode) {
+      this.pauseMessage.parentNode.removeChild(this.pauseMessage);
+    }
+    
     // Remove event listeners
     document.removeEventListener('LevelCreated', this.onLevelCreated);
+    document.removeEventListener('keydown', this.pauseHandler);
     
     this.isGameActive = false;
   }
