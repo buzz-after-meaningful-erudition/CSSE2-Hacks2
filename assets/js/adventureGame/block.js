@@ -24,7 +24,7 @@ class Block {
     this.isBouncing = false;
     
     // Random color generation for visual variety
-    this.colors = ['red', 'blue', 'green', 'purple', 'orange', 'yellow'];
+    this.colors = ['crimson', 'royalblue', 'limegreen', 'mediumslateblue', 'darkorange', 'gold', 'deeppink', 'turquoise', 'tomato', 'springgreen', 'indigo', 'orchid', 'salmon', 'steelblue', 'chartreuse', 'coral', 'cyan', 'fuchsia', 'navy', 'firebrick'];
     this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
     
     // Create HTML element for the block
