@@ -1,300 +1,296 @@
 /**
- * UsernameManager.js
- * 
- * A standalone module for managing username functionality in the game.
- * This can be imported into GameLevelEnd.js without modifying Game.js
+ * UsernameManager - Handles username input, storage, and retrieval
  */
-
 class UsernameManager {
     constructor(gameEnv) {
-      this.gameEnv = gameEnv;
-      this.username = null;
-      this.isInitialized = false;
+        this.gameEnv = gameEnv;
+        this.username = localStorage.getItem('username') || '';
+        this.uid = null;
+        this.personId = null;
+        this.usernameElement = null;
+        this.inputActive = false;
     }
-  
+
     /**
      * Initialize the username manager
-     * @returns {Promise} Resolves when initialization is complete
      */
     async initialize() {
-      if (this.isInitialized) return;
-      
-      console.log("Initializing UsernameManager");
-      
-      // Check if username is already stored
-      if (!await this.checkForStoredUsername()) {
-        // Show username prompt
-        await this.showUsernamePrompt();
-      } else {
-        // Display username on screen
-        this.displayUsername();
-      }
-      
-      this.isInitialized = true;
-    }
-    
-    /**
-     * Check if username is already stored
-     * @returns {Promise<boolean>} True if username exists
-     */
-    async checkForStoredUsername() {
-      // Check localStorage
-      const storedUsername = localStorage.getItem('gameUsername');
-      if (storedUsername) {
-        console.log(`Found stored username: ${storedUsername}`);
-        this.username = storedUsername;
-        return true;
-      }
-      
-      // Check if the user has an ID from the backend
-      if (this.gameEnv.game && this.gameEnv.game.uid) {
-        const uid = this.gameEnv.game.uid;
-        // Try to get username from backend
-        const found = await this.fetchUsernameFromBackend(uid);
-        if (found) return true;
-      }
-      
-      return false;
-    }
-    
-    /**
-     * Fetch username from backend using UID
-     * @param {string} uid User ID
-     * @returns {Promise<boolean>} True if username was found
-     */
-    async fetchUsernameFromBackend(uid) {
-      try {
-        if (!this.gameEnv.game.javaURI) {
-          console.error("Java URI not available");
-          return false;
-        }
+        // Create username display element
+        this.createUsernameDisplay();
         
-        const response = await fetch(`${this.gameEnv.game.javaURI}/rpg_answer/getUsername/${uid}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          }
+        // Fetch user IDs
+        await this.fetchUserIds();
+        
+        // If no username is stored, prompt for one
+        if (!this.username) {
+            this.promptForUsername();
+        } else {
+            // If username exists, update the server
+            this.updateUsernameOnServer();
+        }
+    }
+    
+    /**
+     * Create username display element
+     */
+    createUsernameDisplay() {
+        this.usernameElement = document.createElement('div');
+        this.usernameElement.id = 'username-display';
+        this.usernameElement.style.position = 'fixed';
+        this.usernameElement.style.top = '10px';
+        this.usernameElement.style.right = '10px';
+        this.usernameElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        this.usernameElement.style.color = 'white';
+        this.usernameElement.style.padding = '5px 10px';
+        this.usernameElement.style.borderRadius = '5px';
+        this.usernameElement.style.fontFamily = '"Press Start 2P", cursive, sans-serif';
+        this.usernameElement.style.fontSize = '12px';
+        this.usernameElement.style.zIndex = '9999';
+        this.usernameElement.style.cursor = 'pointer';
+        this.usernameElement.textContent = this.username ? `Player: ${this.username}` : 'Set Username';
+        
+        // Add click event to change username
+        this.usernameElement.addEventListener('click', () => {
+            if (!this.inputActive) {
+                this.promptForUsername();
+            }
         });
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.username) {
-            this.username = data.username;
-            localStorage.setItem('gameUsername', this.username);
-            this.displayUsername();
-            return true;
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching username:", error);
-      }
-      
-      return false;
+        document.body.appendChild(this.usernameElement);
     }
     
     /**
-     * Show username prompt overlay
-     * @returns {Promise} Resolves when username is set
+     * Fetch user and person IDs from the server
      */
-    showUsernamePrompt() {
-      return new Promise((resolve) => {
-        // Create overlay container
+    async fetchUserIds() {
+        try {
+            // Get UID from Python backend
+            const uidResponse = await fetch(`${this.gameEnv.game.pythonURI}/api/id`, this.gameEnv.game.fetchOptions);
+            if (!uidResponse.ok) {
+                console.error("Failed to fetch UID");
+                return;
+            }
+            
+            const uidData = await uidResponse.json();
+            this.uid = uidData.uid;
+            
+            if (!this.uid) {
+                console.error("No UID returned from server");
+                return;
+            }
+            
+            // Get person ID from Java backend
+            const personResponse = await fetch(
+                `${this.gameEnv.game.javaURI}/rpg_answer/person/${this.uid}`, 
+                this.gameEnv.game.fetchOptions
+            );
+            
+            if (!personResponse.ok) {
+                console.error("Failed to fetch person ID");
+                return;
+            }
+            
+            const personData = await personResponse.json();
+            this.personId = personData.id;
+            
+        } catch (error) {
+            console.error("Error fetching user IDs:", error);
+        }
+    }
+    
+    /**
+     * Prompt the user to enter a username
+     */
+    promptForUsername() {
+        this.inputActive = true;
+        
+        // Create modal overlay
         const overlay = document.createElement('div');
-        overlay.id = 'username-overlay';
-        overlay.style.position = 'absolute';
+        overlay.style.position = 'fixed';
         overlay.style.top = '0';
         overlay.style.left = '0';
         overlay.style.width = '100%';
         overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        overlay.style.zIndex = '10000';
         overlay.style.display = 'flex';
         overlay.style.justifyContent = 'center';
         overlay.style.alignItems = 'center';
-        overlay.style.zIndex = '1000';
         
-        // Create prompt container
-        const promptContainer = document.createElement('div');
-        promptContainer.style.backgroundColor = '#333';
-        promptContainer.style.padding = '30px';
-        promptContainer.style.borderRadius = '8px';
-        promptContainer.style.textAlign = 'center';
-        promptContainer.style.maxWidth = '400px';
-        promptContainer.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+        // Create modal content
+        const modal = document.createElement('div');
+        modal.style.backgroundColor = '#333';
+        modal.style.padding = '20px';
+        modal.style.borderRadius = '10px';
+        modal.style.maxWidth = '400px';
+        modal.style.width = '90%';
+        modal.style.boxShadow = '0 0 20px rgba(245, 194, 7, 0.5)';
+        modal.style.border = '3px solid #f5c207';
         
-        // Create title
+        // Create modal title
         const title = document.createElement('h2');
         title.textContent = 'Enter Your Username';
-        title.style.color = '#fff';
-        title.style.marginBottom = '20px';
-        title.style.fontFamily = 'Arial, sans-serif';
+        title.style.color = '#f5c207';
+        title.style.marginTop = '0';
+        title.style.marginBottom = '15px';
+        title.style.fontFamily = '"Press Start 2P", cursive, sans-serif';
+        title.style.fontSize = '18px';
+        title.style.textAlign = 'center';
         
-        // Create input
+        // Create input field
         const input = document.createElement('input');
         input.type = 'text';
-        input.id = 'username-input';
-        input.placeholder = 'Username';
-        input.style.padding = '10px 15px';
-        input.style.fontSize = '16px';
-        input.style.width = '80%';
-        input.style.marginBottom = '20px';
-        input.style.borderRadius = '4px';
-        input.style.border = 'none';
+        input.value = this.username;
+        input.maxLength = 20;
+        input.placeholder = 'Your username (max 20 chars)';
+        input.style.width = '100%';
+        input.style.padding = '10px';
+        input.style.marginBottom = '15px';
+        input.style.boxSizing = 'border-box';
+        input.style.border = '2px solid #555';
+        input.style.borderRadius = '5px';
+        input.style.backgroundColor = '#222';
+        input.style.color = 'white';
+        input.style.fontFamily = 'sans-serif';
         
-        // Create submit button
-        const button = document.createElement('button');
-        button.textContent = 'Start Game';
-        button.style.padding = '10px 20px';
-        button.style.fontSize = '16px';
-        button.style.backgroundColor = '#4CAF50';
-        button.style.color = 'white';
-        button.style.border = 'none';
-        button.style.borderRadius = '4px';
-        button.style.cursor = 'pointer';
+        // Create button container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.justifyContent = 'space-between';
         
-        // Add hover effect
-        button.addEventListener('mouseover', () => {
-          button.style.backgroundColor = '#45a049';
-        });
-        button.addEventListener('mouseout', () => {
-          button.style.backgroundColor = '#4CAF50';
-        });
+        // Create save button
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save';
+        saveButton.style.padding = '8px 20px';
+        saveButton.style.backgroundColor = '#f5c207';
+        saveButton.style.color = 'black';
+        saveButton.style.border = 'none';
+        saveButton.style.borderRadius = '5px';
+        saveButton.style.cursor = 'pointer';
+        saveButton.style.fontFamily = '"Press Start 2P", cursive, sans-serif';
+        saveButton.style.fontSize = '12px';
         
-        // Add button click handler
-        button.addEventListener('click', async () => {
-          await this.submitUsername(input.value, overlay);
-          resolve();
-        });
+        // Create cancel button
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancel';
+        cancelButton.style.padding = '8px 20px';
+        cancelButton.style.backgroundColor = '#555';
+        cancelButton.style.color = 'white';
+        cancelButton.style.border = 'none';
+        cancelButton.style.borderRadius = '5px';
+        cancelButton.style.cursor = 'pointer';
+        cancelButton.style.fontFamily = '"Press Start 2P", cursive, sans-serif';
+        cancelButton.style.fontSize = '12px';
         
-        // Add enter key handler
-        input.addEventListener('keypress', async (e) => {
-          if (e.key === 'Enter') {
-            await this.submitUsername(input.value, overlay);
-            resolve();
-          }
-        });
-        
-        // Assemble and add to DOM
-        promptContainer.appendChild(title);
-        promptContainer.appendChild(input);
-        promptContainer.appendChild(button);
-        overlay.appendChild(promptContainer);
+        // Add elements to modal
+        buttonContainer.appendChild(cancelButton);
+        buttonContainer.appendChild(saveButton);
+        modal.appendChild(title);
+        modal.appendChild(input);
+        modal.appendChild(buttonContainer);
+        overlay.appendChild(modal);
         document.body.appendChild(overlay);
         
-        // Focus the input
-        setTimeout(() => input.focus(), 100);
-      });
+        // Focus the input field
+        input.focus();
+        
+        // Handle save button click
+        saveButton.addEventListener('click', () => {
+            const newUsername = input.value.trim();
+            if (newUsername) {
+                this.setUsername(newUsername);
+            }
+            document.body.removeChild(overlay);
+            this.inputActive = false;
+        });
+        
+        // Handle cancel button click
+        cancelButton.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            this.inputActive = false;
+        });
+        
+        // Handle Enter key
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const newUsername = input.value.trim();
+                if (newUsername) {
+                    this.setUsername(newUsername);
+                }
+                document.body.removeChild(overlay);
+                this.inputActive = false;
+            }
+        });
     }
     
     /**
-     * Submit username to backend and store locally
-     * @param {string} username User's chosen name
-     * @param {HTMLElement} overlay The overlay element to remove
-     * @returns {Promise} Resolves when submission is complete
+     * Set the username and update it locally and on the server
      */
-    async submitUsername(username, overlay) {
-      if (!username || username.trim() === '') {
-        alert('Please enter a valid username');
-        return;
-      }
-      
-      this.username = username.trim();
-      
-      // Store locally
-      localStorage.setItem('gameUsername', this.username);
-      
-      // Store in backend if user ID is available
-      if (this.gameEnv.game && this.gameEnv.game.uid && this.gameEnv.game.javaURI) {
-        try {
-          const response = await fetch(`${this.gameEnv.game.javaURI}/rpg_answer/setUsername`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              uid: this.gameEnv.game.uid,
-              username: this.username
-            })
-          });
-          
-          if (!response.ok) {
-            console.error("Error saving username to backend");
-          }
-        } catch (error) {
-          console.error("Error saving username:", error);
+    setUsername(username) {
+        this.username = username;
+        localStorage.setItem('username', username);
+        
+        if (this.usernameElement) {
+            this.usernameElement.textContent = `Player: ${username}`;
         }
-      }
-      
-      // Remove overlay
-      document.body.removeChild(overlay);
-      
-      // Display username on screen
-      this.displayUsername();
+        
+        this.updateUsernameOnServer();
     }
     
     /**
-     * Display username on screen
+     * Update the username on the server
      */
-    displayUsername() {
-      // Remove existing username display if any
-      const existingDisplay = document.getElementById('username-display');
-      if (existingDisplay) {
-        existingDisplay.remove();
-      }
-      
-      if (!this.username) return;
-      
-      // Create username display
-      const usernameDisplay = document.createElement('div');
-      usernameDisplay.id = 'username-display';
-      usernameDisplay.style.position = 'fixed';
-      usernameDisplay.style.top = '10px';
-      usernameDisplay.style.left = '10px';
-      usernameDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-      usernameDisplay.style.color = '#fff';
-      usernameDisplay.style.padding = '8px 15px';
-      usernameDisplay.style.borderRadius = '4px';
-      usernameDisplay.style.zIndex = '999';
-      usernameDisplay.style.fontFamily = 'Arial, sans-serif';
-      usernameDisplay.style.fontSize = '16px';
-      usernameDisplay.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
-      
-      usernameDisplay.textContent = `Player: ${this.username}`;
-      document.body.appendChild(usernameDisplay);
+    async updateUsernameOnServer() {
+        if (!this.uid || !this.personId || !this.username) {
+            console.error("Cannot update username: missing UID, personId, or username");
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${this.gameEnv.game.javaURI}/rpg_answer/updateUsername`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    personId: this.personId,
+                    username: this.username
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Server response: ${response.status}`);
+            }
+            
+            console.log("Username updated successfully on server");
+            
+        } catch (error) {
+            console.error("Error updating username on server:", error);
+        }
     }
     
     /**
-     * Update check - call this from game loop to make sure username is visible
+     * Get the current username
+     */
+    getUsername() {
+        return this.username;
+    }
+    
+    /**
+     * Update method to be called by game loop
      */
     update() {
-      // Make sure username is displayed if it exists
-      if (this.username && !document.getElementById('username-display')) {
-        this.displayUsername();
-      }
+        // This can be used for any regular updates needed
     }
     
     /**
      * Clean up resources
      */
     destroy() {
-      // Remove any UI elements created
-      const usernameDisplay = document.getElementById('username-display');
-      if (usernameDisplay) {
-        usernameDisplay.remove();
-      }
-      
-      const usernameOverlay = document.getElementById('username-overlay');
-      if (usernameOverlay) {
-        usernameOverlay.remove();
-      }
+        if (this.usernameElement && this.usernameElement.parentNode) {
+            this.usernameElement.parentNode.removeChild(this.usernameElement);
+        }
     }
-    
-    /**
-     * Get current username
-     * @returns {string} The current username
-     */
-    getUsername() {
-      return this.username;
-    }
-  }
-  
-  export default UsernameManager;
+}
+
+export default UsernameManager;

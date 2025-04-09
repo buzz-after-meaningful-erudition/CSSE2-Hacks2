@@ -189,7 +189,6 @@ permalink: /gamify/leaderboard
         <h1>Adventure Game Leaderboard</h1>
         <p>Compete with other players for the highest scores and achievements!</p>
     </div>
-    
     <div id="user-stats" class="user-stats">
         <h2>Your Stats</h2>
         <div class="stats-grid">
@@ -211,7 +210,6 @@ permalink: /gamify/leaderboard
             </div>
         </div>
     </div>
-    
     <table class="leaderboard-table">
         <thead>
             <tr>
@@ -227,7 +225,6 @@ permalink: /gamify/leaderboard
             </tr>
         </tbody>
     </table>
-    
     <div class="game-links">
         <a href="{{site.baseurl}}/gamify/adventureGame" class="game-button">Play Adventure Game</a>
     </div>
