@@ -2,6 +2,7 @@ import GamEnvBackground from './GameEnvBackground.js';
 import Player from './Player.js';
 import Npc from './Npc.js';
 import Quiz from './Quiz.js';
+import Block from './block.js';
 import GameControl from './GameControl.js';
 import GameLevelStarWars from './GameLevelStarWars.js';
 import GameLevelMeteorBlaster from './GameLevelMeteorBlaster.js';
@@ -10,22 +11,25 @@ import GameLevelEnd from './GameLevelEnd.js';
 
 class GameLevelDesert {
   constructor(gameEnv) {
+    // Store the gameEnv reference
+    this.gameEnv = gameEnv;
+    
     // Values dependent on this.gameEnv.create()
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
 
     // Background data
-    const image_src_desert = path + "/images/gamify/desert.png"; // be sure to include the path
+    const image_src_desert = path + "/images/gamify/desert.png";
     const image_data_desert = {
         name: 'desert',
-        greeting: "Welcome to the desert!  It is hot and dry here, but there are many adventures to be had!",
+        greeting: "Welcome to the desert! It is hot and dry here, but there are many adventures to be had!",
         src: image_src_desert,
         pixels: {height: 580, width: 1038}
     };
 
     // Player data for Chillguy
-    const sprite_src_chillguy = path + "/images/gamify/chillguy.png"; // be sure to include the path
+    const sprite_src_chillguy = path + "/images/gamify/chillguy.png";
     const CHILLGUY_SCALE_FACTOR = 5;
     const sprite_data_chillguy = {
         id: 'Chill Guy',
@@ -49,50 +53,19 @@ class GameLevelDesert {
         keypress: { up: 87, left: 65, down: 83, right: 68 } // W, A, S, D
     };
 
-    // Falling block logic
-    let blockY = 0;
-    const blockSpeed = 5;
-    let blockDirection = 'down'; // Block will fall down initially
-
-    // Create the falling block
-    const block = document.createElement('div');
-    block.style.position = 'absolute';
-    block.style.width = '50px';
-    block.style.height = '50px';
-    block.style.backgroundColor = 'red';
-    document.body.appendChild(block);
-
-    function updateBlockPosition() {
-        if (blockDirection === 'down') {
-            blockY += blockSpeed;
-            if (blockY >= height - 50) { // Block hits the bottom of the screen
-                blockY = 0; // Reset position to top
-            }
-        }
-
-        block.style.top = blockY + 'px';
-    }
-
-    function gameLoop() {
-        updateBlockPosition();
-        requestAnimationFrame(gameLoop);
-    }
-
-    gameLoop(); // Start the game loop
-
     // NPC Data for Tux 
-    const sprite_src_tux = path + "/images/gamify/tux.png"; // be sure to include the path
-    const sprite_greet_tux = "Hi I am Tux, the Linux mascot.  I am very happy to spend some linux shell time with you!";
+    const sprite_src_tux = path + "/images/gamify/tux.png";
+    const sprite_greet_tux = "Hi I am Tux, the Linux mascot. I am very happy to spend some linux shell time with you!";
     const sprite_data_tux = {
         id: 'Tux',
         greeting: sprite_greet_tux,
         src: sprite_src_tux,
-        SCALE_FACTOR: 8,  // Adjust this based on your scaling needs
+        SCALE_FACTOR: 8,
         ANIMATION_RATE: 50,
         pixels: {height: 256, width: 352},
         INIT_POSITION: { x: (width / 2), y: (height / 2)},
         orientation: {rows: 8, columns: 11 },
-        down: {row: 5, start: 0, columns: 3 },  // This is the stationary npc, down is default 
+        down: {row: 5, start: 0, columns: 3 },
         hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
         quiz: { 
           title: "Linux Command Quiz",
@@ -113,21 +86,135 @@ class GameLevelDesert {
           alert(sprite_greet_tux);
         },
         interact: function() {
-          let quiz = new Quiz(); // Create a new Quiz instance
+          let quiz = new Quiz();
           quiz.initialize();
           quiz.openPanel(sprite_data_tux);
         }
     };
 
-    // Add your other NPCs and other game logic here...
+    // Create falling blocks array
+    this.blocks = [];
+    this.blockCount = 5; // Number of falling blocks
+    this.player = null;
+    this.score = 0;
+    this.isGameActive = true;
     
+    // Score display
+    this.scoreElement = document.createElement('div');
+    this.scoreElement.style.position = 'absolute';
+    this.scoreElement.style.top = '10px';
+    this.scoreElement.style.right = '10px';
+    this.scoreElement.style.padding = '10px';
+    this.scoreElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    this.scoreElement.style.color = 'white';
+    this.scoreElement.style.fontSize = '18px';
+    this.scoreElement.style.fontFamily = 'Arial, sans-serif';
+    this.scoreElement.style.borderRadius = '5px';
+    this.scoreElement.style.zIndex = '1000';
+    this.scoreElement.textContent = 'Score: 0';
+    document.body.appendChild(this.scoreElement);
+    
+    // Initialize blocks
+    for (let i = 0; i < this.blockCount; i++) {
+      this.blocks.push(new Block(gameEnv));
+    }
+
+    // Set up game loop
+    this.startGameLoop();
+
     // List of objects definitions for this level
     this.classes = [
       { class: GamEnvBackground, data: image_data_desert },
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux }
-      // Add more NPCs or other game objects as needed
     ];
+
+    // Listen for level creation to get player reference
+    document.addEventListener('LevelCreated', (event) => {
+      // Find player in the game objects
+      const gameObjects = event.detail?.gameObjects || [];
+      this.player = gameObjects.find(obj => obj instanceof Player);
+    });
+  }
+
+  // Start the game loop
+  startGameLoop() {
+    if (this.gameLoopId) {
+      cancelAnimationFrame(this.gameLoopId);
+    }
+    
+    const gameLoop = () => {
+      if (!this.isGameActive) return;
+      
+      this.update();
+      this.gameLoopId = requestAnimationFrame(gameLoop);
+    };
+    
+    this.gameLoopId = requestAnimationFrame(gameLoop);
+  }
+
+  // Update method for game loop
+  update() {
+    // Update each block
+    this.blocks.forEach(block => {
+      block.update();
+      
+      // Check for collision with player
+      if (this.player && block.checkCollision(this.player)) {
+        // Increase score
+        this.score += Math.floor(block.speed);
+        this.scoreElement.textContent = `Score: ${this.score}`;
+        
+        // Reset block
+        block.y = -block.height;
+        block.x = Math.random() * (this.gameEnv.innerWidth - block.width);
+        block.fallCount++;
+        block.color = block.colors[Math.floor(Math.random() * block.colors.length)];
+        block.element.style.backgroundColor = block.color;
+      }
+    });
+  }
+
+  // Pause the game
+  pause() {
+    this.isGameActive = false;
+    if (this.gameLoopId) {
+      cancelAnimationFrame(this.gameLoopId);
+      this.gameLoopId = null;
+    }
+  }
+
+  // Resume the game
+  resume() {
+    if (!this.isGameActive) {
+      this.isGameActive = true;
+      this.startGameLoop();
+    }
+  }
+
+  // Clean up method to remove blocks when level changes
+  destroy() {
+    // Cancel the game loop
+    if (this.gameLoopId) {
+      cancelAnimationFrame(this.gameLoopId);
+      this.gameLoopId = null;
+    }
+    
+    // Remove all blocks
+    if (this.blocks) {
+      this.blocks.forEach(block => block.destroy());
+      this.blocks = [];
+    }
+    
+    // Remove score display
+    if (this.scoreElement && this.scoreElement.parentNode) {
+      this.scoreElement.parentNode.removeChild(this.scoreElement);
+    }
+    
+    // Remove event listeners
+    document.removeEventListener('LevelCreated', this.onLevelCreated);
+    
+    this.isGameActive = false;
   }
 }
 
