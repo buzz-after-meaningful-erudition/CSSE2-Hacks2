@@ -131,9 +131,9 @@ class GameLevelEnd {
         }
     };
 
-    // Create 12 collectable ender eyes placed randomly on the map
+    // Create 12 collectable ender eyes to cycle through
     this.collectableEyes = [];
-    const ENDER_EYE_SCALE = 2; // Smaller scale for collectables (reduced from 4 to 2)
+    const ENDER_EYE_SCALE = 1; // Much smaller scale for collectables (reduced from 4 to 1)
     
     for (let i = 0; i < 12; i++) {
       // Generate random positions within the bounds of the map
@@ -145,7 +145,7 @@ class GameLevelEnd {
       const eyeId = `EnderEye_${i+1}`;
       const sprite_data_collectableEye = {
         id: eyeId,
-        greeting: `Ender Eye ${i+1} of 12. Press K to collect me!`,
+        greeting: `Ender Eye ${i+1} of 12. Press M to collect me!`,
         src: sprite_src_endereye,
         SCALE_FACTOR: ENDER_EYE_SCALE,
         ANIMATION_RATE: 500, // Faster animation rate for a subtle effect
@@ -172,7 +172,7 @@ class GameLevelEnd {
       { class: Player, data: sprite_data_alex }
     ];
     
-    // Add all collectable ender eyes to the classes array
+    // Add all collectable ender eyes to the classes array (they'll be hidden initially)
     this.collectableEyes.forEach(eyeData => {
       this.classes.push({ class: Npc, data: eyeData });
     });
@@ -182,18 +182,50 @@ class GameLevelEnd {
     // Set up collection counter
     this.setupCollectionCounter();
     
-    // Add key listener for 'K' key to collect ender eyes
+    // Set up player's balance
+    this.playerBalance = 0;
+    this.setupBalanceDisplay();
+    
+    // Add key listener for 'M' key to collect ender eyes
     this.setupKeyListener();
     
     // Start the cycling of ender eyes
     this.currentVisibleEyeIndex = 0;
-    // Make the first eye visible
-    if (this.collectableEyes.length > 0) {
-      this.collectableEyes[0].visible = true;
-    }
     
     // Set up the cycling interval
     this.startEnderEyeCycle();
+  }
+  
+  /**
+   * Set up the player's balance display
+   */
+  setupBalanceDisplay() {
+    const balance = document.createElement('div');
+    balance.id = 'player-balance';
+    balance.style.position = 'fixed';
+    balance.style.top = '50px';
+    balance.style.left = '10px';
+    balance.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    balance.style.color = '#fff';
+    balance.style.padding = '10px';
+    balance.style.borderRadius = '5px';
+    balance.style.zIndex = '9999';
+    balance.style.fontFamily = 'Arial, sans-serif';
+    balance.style.fontSize = '18px';
+    balance.style.fontWeight = 'bold';
+    balance.textContent = 'Balance: 0';
+    document.body.appendChild(balance);
+  }
+  
+  /**
+   * Update the player's balance
+   */
+  updatePlayerBalance(amount) {
+    this.playerBalance += amount;
+    const balance = document.getElementById('player-balance');
+    if (balance) {
+      balance.textContent = `Balance: ${this.playerBalance}`;
+    }
   }
   
   /**
@@ -204,8 +236,11 @@ class GameLevelEnd {
     this.hideAllEnderEyes();
     
     // Make the first eye visible
-    if (this.collectableEyes.length > 0) {
+    if (this.collectableEyes.length > 0 && !this.collectableEyes[0].collected) {
       this.showEnderEye(0);
+    } else {
+      // If first eye is already collected, find next available one
+      this.cycleToNextEnderEye();
     }
     
     // Set interval to cycle eyes every 10 seconds
@@ -234,6 +269,7 @@ class GameLevelEnd {
     // If all eyes are collected, stop cycling
     if (attempts >= this.collectableEyes.length) {
       clearInterval(this.cycleInterval);
+      this.showNotification("All ender eyes have been collected!", 5000);
       return;
     }
     
@@ -319,12 +355,12 @@ class GameLevelEnd {
   }
   
   /**
-   * Set up key listener for collecting ender eyes with 'K' key
+   * Set up key listener for collecting ender eyes with 'M' key
    */
   setupKeyListener() {
     document.addEventListener('keydown', (e) => {
-      // Check if K key is pressed (key code 75)
-      if (e.keyCode === 75) {
+      // Check if M key is pressed (key code 77)
+      if (e.keyCode === 77) {
         this.tryCollectEnderEyes();
       }
     });
@@ -389,8 +425,11 @@ class GameLevelEnd {
       counter.textContent = `Ender Eyes: ${collected}/12`;
     }
     
+    // Increase player's balance
+    this.updatePlayerBalance(10); // Add 10 to balance for each eye collected
+    
     // Show a notification
-    this.showNotification(`Collected Ender Eye ${index + 1}!`);
+    this.showNotification(`Collected Ender Eye ${index + 1}! +10 balance`);
     
     // Check if all eyes are collected
     if (collected === 12) {
@@ -519,6 +558,7 @@ class GameLevelEnd {
       html += `<p>Collected: ${this.collectableEyes.filter(eye => eye.collected).length}</p>`;
       html += `<p>Currently Visible: Eye #${this.currentVisibleEyeIndex + 1}</p>`;
       html += `<p>Next Rotation: In ${Math.round((10000 - (Date.now() % 10000)) / 1000)} seconds</p>`;
+      html += `<p>Player Balance: ${this.playerBalance}</p>`;
       this.collectableEyes.forEach((eye, i) => {
         html += `<p>Eye #${i+1}: ${eye.collected ? 'Collected' : (eye.visible ? 'Visible' : 'Hidden')} - Position: (${Math.round(eye.INIT_POSITION.x)}, ${Math.round(eye.INIT_POSITION.y)})</p>`;
       });
