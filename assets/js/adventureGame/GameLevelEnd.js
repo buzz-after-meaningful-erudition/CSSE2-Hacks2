@@ -131,11 +131,11 @@ class GameLevelEnd {
         }
     };
 
-    // Create 12 collectable ender eyes to cycle through
+    // Create 2 collectable ender eyes to cycle through
     this.collectableEyes = [];
     const ENDER_EYE_SCALE = 8; // Much smaller scale for collectables (reduced from 4 to 1)
     
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 2; i++) {
       // Generate random positions within the bounds of the map
       // Add some padding to avoid placing them too close to the edges
       const padding = 100;
@@ -145,7 +145,7 @@ class GameLevelEnd {
       const eyeId = `EnderEye_${i+1}`;
       const sprite_data_collectableEye = {
         id: eyeId,
-        greeting: `Ender Eye ${i+1} of 12. Press M to collect me!`,
+        greeting: `Ender Eye ${i+1} of 2. Press M to collect me!`,
         src: sprite_src_endereye,
         SCALE_FACTOR: ENDER_EYE_SCALE,
         ANIMATION_RATE: 500, // Faster animation rate for a subtle effect
@@ -350,7 +350,7 @@ class GameLevelEnd {
     counter.style.fontFamily = 'Arial, sans-serif';
     counter.style.fontSize = '18px';
     counter.style.fontWeight = 'bold';
-    counter.textContent = 'Ender Eyes: 0/12';
+    counter.textContent = 'Ender Eyes: 0/2';
     document.body.appendChild(counter);
   }
   
@@ -422,7 +422,7 @@ class GameLevelEnd {
     const collected = this.collectableEyes.filter(eye => eye.collected).length;
     const counter = document.getElementById('ender-eye-counter');
     if (counter) {
-      counter.textContent = `Ender Eyes: ${collected}/12`;
+      counter.textContent = `Ender Eyes: ${collected}/2`;
     }
     
     // Increase player's balance
@@ -432,9 +432,9 @@ class GameLevelEnd {
     this.showNotification(`Collected Ender Eye ${index + 1}! +10 balance`);
     
     // Check if all eyes are collected
-    if (collected === 12) {
+    if (collected === 2) {
       setTimeout(() => {
-        this.showNotification("Congratulations! You've collected all 12 Ender Eyes!", 5000);
+        this.showNotification("Congratulations! You've collected all 2 Ender Eyes!", 5000);
         // Stop the cycling when all eyes are collected
         clearInterval(this.cycleInterval);
       }, 1000);
