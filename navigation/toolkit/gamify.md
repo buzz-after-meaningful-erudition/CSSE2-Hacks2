@@ -57,7 +57,7 @@ menu: nav/home.html
 
         setTimeout(() => {
           window.location.href = "{{site.baseurl}}/login";
-        }, 2000);
+        }, 1000000);
       }
     }
 </script>
@@ -113,7 +113,7 @@ menu: nav/home.html
     </div>
   </a>
   <a href="{{site.baseurl}}/gamify/end" class="toolkit-button" data-description="A journey to the end. Explore finality and decision-making in this philosophical minigame." data-authors="Author: GameDev Team">
-    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/end.png " alt="End Game" />
+    <img src="https://github.com/user-attachments/assets/c0172894-9c91-4e29-83ed-39b9c7f6361e" alt="End Game" />
     <span class="button-name">End Game</span>
     <div class="description">
       <p>A journey to the end. Face choices, decisions, and see how your path unfolds in this minimalistic game.</p>
@@ -124,7 +124,7 @@ menu: nav/home.html
 <!-- Third Row -->
 <div class="toolkit-buttons">
   <a href="{{site.baseurl}}/gamify/squares" class="toolkit-button" data-description="Use your strategy skills to dominate the board in this colorful and competitive square-claiming game." data-authors="Author: PuzzleMaster">
-    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/squares.png" alt="Squares Game" />
+    <img src="https://github.com/user-attachments/assets/0788e4c5-df0c-4895-9180-90676fd95214" alt="Squares Game" />
     <span class="button-name">Squares Game</span>
     <div class="description">
       <p>Claim as many squares as you can in this fast-paced, color-blocking puzzle game!</p>
