@@ -2,6 +2,7 @@
 layout: post 
 title: Cybersecurity Expert Panel
 description: Cybersecurity Panel Notes
+permalink: /cyber/
 ---
 # Cybersecurity Panel Summary
 
