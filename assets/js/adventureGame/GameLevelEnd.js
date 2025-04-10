@@ -133,7 +133,7 @@ class GameLevelEnd {
 
     // Create 12 collectable ender eyes to cycle through
     this.collectableEyes = [];
-    const ENDER_EYE_SCALE = 1; // Much smaller scale for collectables (reduced from 4 to 1)
+    const ENDER_EYE_SCALE = 8; // Much smaller scale for collectables (reduced from 4 to 1)
     
     for (let i = 0; i < 12; i++) {
       // Generate random positions within the bounds of the map
