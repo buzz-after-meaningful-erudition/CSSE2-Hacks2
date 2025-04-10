@@ -133,7 +133,7 @@ class GameLevelEnd {
 
     // Create 12 collectable ender eyes placed randomly on the map
     this.collectableEyes = [];
-    const ENDER_EYE_SCALE = 4; // Smaller scale for collectables
+    const ENDER_EYE_SCALE = 2; // Smaller scale for collectables (reduced from 4 to 2)
     
     for (let i = 0; i < 12; i++) {
       // Generate random positions within the bounds of the map
@@ -157,6 +157,7 @@ class GameLevelEnd {
         zIndex: 8, // Above background but below main characters
         isCollectable: true, // Flag to identify as a collectable item
         collected: false, // Track if this eye has been collected
+        visible: false // Initial state - not visible
       };
       
       this.collectableEyes.push(sprite_data_collectableEye);
@@ -183,6 +184,117 @@ class GameLevelEnd {
     
     // Add key listener for 'K' key to collect ender eyes
     this.setupKeyListener();
+    
+    // Start the cycling of ender eyes
+    this.currentVisibleEyeIndex = 0;
+    // Make the first eye visible
+    if (this.collectableEyes.length > 0) {
+      this.collectableEyes[0].visible = true;
+    }
+    
+    // Set up the cycling interval
+    this.startEnderEyeCycle();
+  }
+  
+  /**
+   * Start the cycling of ender eyes
+   */
+  startEnderEyeCycle() {
+    // Initial setup - hide all eyes
+    this.hideAllEnderEyes();
+    
+    // Make the first eye visible
+    if (this.collectableEyes.length > 0) {
+      this.showEnderEye(0);
+    }
+    
+    // Set interval to cycle eyes every 10 seconds
+    this.cycleInterval = setInterval(() => {
+      this.cycleToNextEnderEye();
+    }, 10000); // 10 seconds
+  }
+  
+  /**
+   * Cycle to the next ender eye
+   */
+  cycleToNextEnderEye() {
+    // Hide current eye
+    this.hideEnderEye(this.currentVisibleEyeIndex);
+    
+    // Move to next eye (with wrap-around)
+    this.currentVisibleEyeIndex = (this.currentVisibleEyeIndex + 1) % this.collectableEyes.length;
+    
+    // Skip collected eyes
+    let attempts = 0;
+    while (this.collectableEyes[this.currentVisibleEyeIndex].collected && attempts < this.collectableEyes.length) {
+      this.currentVisibleEyeIndex = (this.currentVisibleEyeIndex + 1) % this.collectableEyes.length;
+      attempts++;
+    }
+    
+    // If all eyes are collected, stop cycling
+    if (attempts >= this.collectableEyes.length) {
+      clearInterval(this.cycleInterval);
+      return;
+    }
+    
+    // Show the next eye
+    this.showEnderEye(this.currentVisibleEyeIndex);
+  }
+  
+  /**
+   * Hide all ender eyes
+   */
+  hideAllEnderEyes() {
+    this.collectableEyes.forEach((eye, index) => {
+      this.hideEnderEye(index);
+    });
+  }
+  
+  /**
+   * Hide a specific ender eye
+   */
+  hideEnderEye(index) {
+    if (index < 0 || index >= this.collectableEyes.length) return;
+    
+    const eye = this.collectableEyes[index];
+    eye.visible = false;
+    
+    // Find the instance for this eye
+    let eyeInstance = this.findEyeInstance(eye.id);
+    if (eyeInstance && eyeInstance.element) {
+      eyeInstance.element.style.display = 'none';
+    }
+  }
+  
+  /**
+   * Show a specific ender eye
+   */
+  showEnderEye(index) {
+    if (index < 0 || index >= this.collectableEyes.length) return;
+    
+    const eye = this.collectableEyes[index];
+    if (eye.collected) return; // Don't show collected eyes
+    
+    eye.visible = true;
+    
+    // Find the instance for this eye
+    let eyeInstance = this.findEyeInstance(eye.id);
+    if (eyeInstance && eyeInstance.element) {
+      eyeInstance.element.style.display = 'block';
+    }
+  }
+  
+  /**
+   * Find the NPC instance for an eye ID
+   */
+  findEyeInstance(eyeId) {
+    let eyeInstance = null;
+    this.classes.forEach(obj => {
+      if (obj.class === Npc && obj.data.id === eyeId && obj.instance) {
+        eyeInstance = obj.instance;
+      }
+    });
+    return eyeInstance;
   }
   
   /**
@@ -236,16 +348,11 @@ class GameLevelEnd {
       
       // Check each collectable eye
       this.collectableEyes.forEach((eyeData, index) => {
-        if (eyeData.collected) return; // Skip already collected eyes
+        // Only try to collect visible and uncollected eyes
+        if (eyeData.collected || !eyeData.visible) return;
         
         // Find the NPC instance for this eye
-        let eyeInstance = null;
-        this.classes.forEach(obj => {
-          if (obj.class === Npc && obj.data.id === eyeData.id && obj.instance) {
-            eyeInstance = obj.instance;
-          }
-        });
-        
+        let eyeInstance = this.findEyeInstance(eyeData.id);
         if (!eyeInstance || !eyeInstance.position) return;
         
         // Calculate distance between player and eye
@@ -268,6 +375,7 @@ class GameLevelEnd {
   collectEye(index, eyeInstance) {
     // Mark as collected
     this.collectableEyes[index].collected = true;
+    this.collectableEyes[index].visible = false;
     
     // Hide the eye from the screen
     if (eyeInstance.element) {
@@ -288,7 +396,14 @@ class GameLevelEnd {
     if (collected === 12) {
       setTimeout(() => {
         this.showNotification("Congratulations! You've collected all 12 Ender Eyes!", 5000);
+        // Stop the cycling when all eyes are collected
+        clearInterval(this.cycleInterval);
       }, 1000);
+    } else {
+      // If we collected the currently visible eye, immediately cycle to the next one
+      if (index === this.currentVisibleEyeIndex) {
+        this.cycleToNextEnderEye();
+      }
     }
   }
   
@@ -402,8 +517,10 @@ class GameLevelEnd {
       html += `<h3>Ender Eye Collection Status</h3>`;
       html += `<p>Total Eyes: ${this.collectableEyes.length}</p>`;
       html += `<p>Collected: ${this.collectableEyes.filter(eye => eye.collected).length}</p>`;
+      html += `<p>Currently Visible: Eye #${this.currentVisibleEyeIndex + 1}</p>`;
+      html += `<p>Next Rotation: In ${Math.round((10000 - (Date.now() % 10000)) / 1000)} seconds</p>`;
       this.collectableEyes.forEach((eye, i) => {
-        html += `<p>Eye #${i+1}: ${eye.collected ? 'Collected' : 'Not Collected'} - Position: (${Math.round(eye.INIT_POSITION.x)}, ${Math.round(eye.INIT_POSITION.y)})</p>`;
+        html += `<p>Eye #${i+1}: ${eye.collected ? 'Collected' : (eye.visible ? 'Visible' : 'Hidden')} - Position: (${Math.round(eye.INIT_POSITION.x)}, ${Math.round(eye.INIT_POSITION.y)})</p>`;
       });
       
       debugInfo.innerHTML = html;
