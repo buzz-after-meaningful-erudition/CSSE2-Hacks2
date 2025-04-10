@@ -102,6 +102,11 @@ class GameLevelDesert {
     this.lastSpeedUpTime = Date.now();
     this.speedUpInterval = 10000; // Increase difficulty every 10 seconds
     
+    // Add lives system
+    this.lives = 3;
+    this.invulnerable = false;
+    this.invulnerabilityTime = 1500; // 1.5 seconds of immunity after getting hit
+    
     // Score display
     this.scoreElement = document.createElement('div');
     this.scoreElement.style.position = 'absolute';
@@ -117,6 +122,21 @@ class GameLevelDesert {
     this.scoreElement.textContent = 'Score: 0';
     document.body.appendChild(this.scoreElement);
     
+    // Lives display
+    this.livesElement = document.createElement('div');
+    this.livesElement.style.position = 'absolute';
+    this.livesElement.style.top = '50px';
+    this.livesElement.style.right = '10px';
+    this.livesElement.style.padding = '10px';
+    this.livesElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    this.livesElement.style.color = 'white';
+    this.livesElement.style.fontSize = '18px';
+    this.livesElement.style.fontFamily = 'Arial, sans-serif';
+    this.livesElement.style.borderRadius = '5px';
+    this.livesElement.style.zIndex = '1000';
+    this.livesElement.textContent = 'Lives: ❤️❤️❤️';
+    document.body.appendChild(this.livesElement);
+    
     // Game instructions
     this.instructionsElement = document.createElement('div');
     this.instructionsElement.style.position = 'absolute';
@@ -130,7 +150,7 @@ class GameLevelDesert {
     this.instructionsElement.style.borderRadius = '5px';
     this.instructionsElement.style.zIndex = '1000';
     this.instructionsElement.style.maxWidth = '300px';
-    this.instructionsElement.innerHTML = 'Desert Challenge: Collect the falling blocks for points!<br>Faster blocks = More points!<br>Press P to pause.';
+    this.instructionsElement.innerHTML = 'Desert Challenge: Collect the falling blocks for points!<br>Faster blocks = More points!<br>You have 3 lives. Getting hit by a block costs 1 life!<br>Press P to pause.';
     document.body.appendChild(this.instructionsElement);
     
     // Initialize blocks with staggered positions
@@ -232,6 +252,31 @@ class GameLevelDesert {
       
       // Check for collision with player
       if (this.player && block.checkCollision(this.player)) {
+        if (this.invulnerable) {
+          // Skip collision if player is invulnerable
+          // But still collect the block
+          block.resetBlock();
+          return;
+        }
+        
+        if (block.isHurtful === undefined || block.isHurtful) {
+          // Block hits the player and causes damage
+          this.lives--;
+          this.updateLivesDisplay();
+          
+          // Show damage effect
+          this.showDamageEffect();
+          
+          // Check if player is dead
+          if (this.lives <= 0) {
+            this.playerDeath();
+            return;
+          }
+          
+          // Make player temporarily invulnerable
+          this.setInvulnerable();
+        }
+        
         // Calculate score based on speed - faster blocks give more points
         const pointsEarned = Math.floor(block.speed * 2);
         this.score += pointsEarned;
@@ -244,6 +289,152 @@ class GameLevelDesert {
         block.resetBlock();
       }
     });
+  }
+  
+  // Make player temporarily invulnerable after being hit
+  setInvulnerable() {
+    this.invulnerable = true;
+    
+    // Make player flash when invulnerable
+    if (this.player) {
+      this.flashInterval = setInterval(() => {
+        if (this.player.sprite) {
+          this.player.sprite.style.opacity = this.player.sprite.style.opacity === '0.5' ? '1' : '0.5';
+        }
+      }, 150);
+    }
+    
+    // Reset invulnerability after timeout
+    setTimeout(() => {
+      this.invulnerable = false;
+      clearInterval(this.flashInterval);
+      if (this.player && this.player.sprite) {
+        this.player.sprite.style.opacity = '1';
+      }
+    }, this.invulnerabilityTime);
+  }
+  
+  // Show damage effect when player is hit
+  showDamageEffect() {
+    const damageOverlay = document.createElement('div');
+    damageOverlay.style.position = 'absolute';
+    damageOverlay.style.top = '0';
+    damageOverlay.style.left = '0';
+    damageOverlay.style.width = '100%';
+    damageOverlay.style.height = '100%';
+    damageOverlay.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+    damageOverlay.style.zIndex = '1500';
+    damageOverlay.style.pointerEvents = 'none';
+    document.body.appendChild(damageOverlay);
+    
+    // Fade out and remove
+    setTimeout(() => {
+      damageOverlay.style.transition = 'opacity 0.5s ease';
+      damageOverlay.style.opacity = '0';
+      
+      setTimeout(() => {
+        if (damageOverlay.parentNode) {
+          damageOverlay.parentNode.removeChild(damageOverlay);
+        }
+      }, 500);
+    }, 100);
+  }
+  
+  // Update the lives display
+  updateLivesDisplay() {
+    let livesText = 'Lives: ';
+    for (let i = 0; i < this.lives; i++) {
+      livesText += '❤️';
+    }
+    this.livesElement.textContent = livesText;
+  }
+  
+  // Handle player death
+  playerDeath() {
+    // Stop the game
+    this.pause();
+    
+    // Create death screen
+    this.deathScreen = document.createElement('div');
+    this.deathScreen.style.position = 'absolute';
+    this.deathScreen.style.top = '0';
+    this.deathScreen.style.left = '0';
+    this.deathScreen.style.width = '100%';
+    this.deathScreen.style.height = '100%';
+    this.deathScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+    this.deathScreen.style.color = 'white';
+    this.deathScreen.style.display = 'flex';
+    this.deathScreen.style.flexDirection = 'column';
+    this.deathScreen.style.justifyContent = 'center';
+    this.deathScreen.style.alignItems = 'center';
+    this.deathScreen.style.zIndex = '3000';
+    
+    // Death message
+    const deathMessage = document.createElement('h1');
+    deathMessage.style.fontSize = '48px';
+    deathMessage.style.textShadow = '2px 2px 4px #000000';
+    deathMessage.style.margin = '0 0 20px 0';
+    deathMessage.textContent = 'GAME OVER';
+    
+    // Final score
+    const scoreMessage = document.createElement('h2');
+    scoreMessage.style.fontSize = '32px';
+    scoreMessage.style.margin = '0 0 40px 0';
+    scoreMessage.textContent = `Final Score: ${this.score}`;
+    
+    // Restart button
+    const restartButton = document.createElement('button');
+    restartButton.style.padding = '15px 30px';
+    restartButton.style.fontSize = '20px';
+    restartButton.style.backgroundColor = '#4CAF50';
+    restartButton.style.color = 'white';
+    restartButton.style.border = 'none';
+    restartButton.style.borderRadius = '5px';
+    restartButton.style.cursor = 'pointer';
+    restartButton.style.transition = 'background-color 0.3s';
+    restartButton.textContent = 'Restart Game';
+    
+    // Button hover effect
+    restartButton.onmouseover = () => {
+      restartButton.style.backgroundColor = '#45a049';
+    };
+    
+    restartButton.onmouseout = () => {
+      restartButton.style.backgroundColor = '#4CAF50';
+    };
+    
+    // Button click to restart
+    restartButton.onclick = () => {
+      // Remove death screen
+      if (this.deathScreen && this.deathScreen.parentNode) {
+        this.deathScreen.parentNode.removeChild(this.deathScreen);
+      }
+      
+      // Reset game state
+      this.lives = 3;
+      this.updateLivesDisplay();
+      this.score = 0;
+      this.scoreElement.textContent = 'Score: 0';
+      this.difficultyMultiplier = 1.0;
+      this.lastSpeedUpTime = Date.now();
+      
+      // Reset player if exists
+      if (this.player && this.player.sprite) {
+        this.player.sprite.style.opacity = '1';
+      }
+      
+      // Reset all blocks
+      this.blocks.forEach(block => block.resetBlock());
+      
+      // Resume game
+      this.resume();
+    };
+    
+    // Assemble death screen
+    this.deathScreen.appendChild(deathMessage);
+    this.deathScreen.appendChild(scoreMessage);
+    this.deathScreen.appendChild(restartButton);
+    document.body.appendChild(this.deathScreen);
   }
   
   // Show points animation
@@ -311,12 +502,25 @@ class GameLevelDesert {
       this.scoreElement.parentNode.removeChild(this.scoreElement);
     }
     
+    if (this.livesElement && this.livesElement.parentNode) {
+      this.livesElement.parentNode.removeChild(this.livesElement);
+    }
+    
     if (this.instructionsElement && this.instructionsElement.parentNode) {
       this.instructionsElement.parentNode.removeChild(this.instructionsElement);
     }
     
     if (this.pauseMessage && this.pauseMessage.parentNode) {
       this.pauseMessage.parentNode.removeChild(this.pauseMessage);
+    }
+    
+    if (this.deathScreen && this.deathScreen.parentNode) {
+      this.deathScreen.parentNode.removeChild(this.deathScreen);
+    }
+    
+    // Clear intervals
+    if (this.flashInterval) {
+      clearInterval(this.flashInterval);
     }
     
     // Remove event listeners
