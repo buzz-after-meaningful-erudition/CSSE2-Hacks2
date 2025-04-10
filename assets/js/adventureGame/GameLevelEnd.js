@@ -229,14 +229,15 @@ class GameLevelEnd {
   }
   
   /**
-   * Start the cycling of ender eyes
+   * Start the cycling of ender eyes with random positions
    */
   startEnderEyeCycle() {
     // Initial setup - hide all eyes
     this.hideAllEnderEyes();
     
-    // Make the first eye visible
+    // Make the first eye visible with a random position
     if (this.collectableEyes.length > 0 && !this.collectableEyes[0].collected) {
+      this.randomizeEyePosition(0);
       this.showEnderEye(0);
     } else {
       // If first eye is already collected, find next available one
@@ -250,7 +251,7 @@ class GameLevelEnd {
   }
   
   /**
-   * Cycle to the next ender eye
+   * Cycle to the next ender eye with a random position
    */
   cycleToNextEnderEye() {
     // Hide current eye
@@ -273,8 +274,47 @@ class GameLevelEnd {
       return;
     }
     
-    // Show the next eye
+    // Randomize the position of the next eye
+    this.randomizeEyePosition(this.currentVisibleEyeIndex);
+    
+    // Show the next eye at its new position
     this.showEnderEye(this.currentVisibleEyeIndex);
+  }
+  
+  /**
+   * Randomize the position of an ender eye
+   */
+  randomizeEyePosition(index) {
+    if (index < 0 || index >= this.collectableEyes.length) return;
+    
+    const eye = this.collectableEyes[index];
+    
+    // Get game dimensions
+    const width = document.documentElement.clientWidth;
+    const height = document.documentElement.clientHeight;
+    
+    // Generate random position within the bounds of the map
+    // Add some padding to avoid placing them too close to the edges
+    const padding = 100;
+    const randomX = padding + Math.random() * (width - (2 * padding));
+    const randomY = padding + Math.random() * (height - (2 * padding));
+    
+    // Update the position
+    eye.INIT_POSITION = { x: randomX, y: randomY };
+    
+    // Find the instance for this eye and update its position
+    let eyeInstance = this.findEyeInstance(eye.id);
+    if (eyeInstance) {
+      eyeInstance.position = { x: randomX, y: randomY };
+      
+      // Update the DOM element position if it exists
+      if (eyeInstance.element) {
+        eyeInstance.element.style.left = `${randomX}px`;
+        eyeInstance.element.style.top = `${randomY}px`;
+      }
+    }
+    
+    console.log(`Eye ${index + 1} position randomized to (${Math.round(randomX)}, ${Math.round(randomY)})`);
   }
   
   /**
@@ -317,7 +357,23 @@ class GameLevelEnd {
     let eyeInstance = this.findEyeInstance(eye.id);
     if (eyeInstance && eyeInstance.element) {
       eyeInstance.element.style.display = 'block';
+      
+      // Ensure position is updated
+      eyeInstance.element.style.left = `${eye.INIT_POSITION.x}px`;
+      eyeInstance.element.style.top = `${eye.INIT_POSITION.y}px`;
+      
+      // Add a small animation effect for appearing
+      eyeInstance.element.style.transition = 'transform 0.5s ease-in-out';
+      eyeInstance.element.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        if (eyeInstance.element) {
+          eyeInstance.element.style.transform = 'scale(1)';
+        }
+      }, 500);
     }
+    
+    // Show a notification about the eye appearing
+    this.showNotification(`Ender Eye appeared! Find it quickly!`, 2000);
   }
   
   /**
