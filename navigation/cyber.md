@@ -1,5 +1,5 @@
 ---
-layout: post 
+layout: page 
 title: Cybersecurity Expert Panel
 description: Cybersecurity Panel Notes
 permalink: /cyber/
@@ -109,5 +109,5 @@ Cyber is only going to grow—especially as we rely more on AI, healthcare IT, a
 
 ## 🎓 Student Credit Code
 
-If you attended the panel, don’t forget to use the **student credit code**:
+If you attended the panel, don’t forget to use the **student credit code**: cyb3rc30
 
