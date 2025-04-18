@@ -54,7 +54,7 @@ class GameLevelEnd {
     };
 
     const sprite_src_chillguy = path + "/images/gamify/Steve.png";
-    const CHILLGUY_SCALE_FACTOR =7;
+    const CHILLGUY_SCALE_FACTOR = 7;
     const sprite_data_chillguy = {
         id: 'Chill Guy',
         greeting: "Hi, I am Chill Guy, the desert wanderer. I am looking for wisdom and adventure!",
@@ -80,13 +80,13 @@ class GameLevelEnd {
     const sprite_src_alex = path + "/images/gamify/Alex.png";
     const alex_SCALE_FACTOR = 7;
     const sprite_data_alex = {
-        id: 'Chill Guy',
-        greeting: "Hi, I am Chill Guy, the desert wanderer. I am looking for wisdom and adventure!",
+        id: 'Alex',
+        greeting: "Hi, I am Alex, ready to explore this mysterious place!",
         src: sprite_src_alex,
         SCALE_FACTOR: alex_SCALE_FACTOR,
         STEP_FACTOR: 1000,
         ANIMATION_RATE: 25, 
-        INIT_POSITION: { x: width/16, y: height/2 },
+        INIT_POSITION: { x: width/16, y: height/2 + 100 },
         pixels: {height: 256, width: 128},
         orientation: {rows: 8, columns: 4 },
         down: {row: 1, start: 0, columns: 4 },
@@ -98,23 +98,21 @@ class GameLevelEnd {
         upLeft: {row: 5, start: 0, columns: 4, rotate: Math.PI/8 },
         upRight: {row: 7, start: 0, columns: 4, rotate: -Math.PI/8 },
         hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 },
-        keypress: { up: 73, left: 74, down: 75, right: 76 } // Using I, J, K, L for Alex to differentiate from Chill Guy
+        keypress: { up: 73, left: 74, down: 75, right: 76 } // Using I, J, K, L for Alex
     };
     
-  
-
-    const sprite_src_tux = path + "/images/gamify/tux.png";
-    const sprite_greet_tux = "THIS IS HOW IT ENDS - Tejo :P";
-    const sprite_data_tux = {
-        id: 'Tux',
-        greeting: sprite_greet_tux,
-        src: sprite_src_tux,
+    const sprite_src_endereye = path + "/images/gamify/endereye.png";
+    const sprite_greet_endereye = "THIS IS HOW IT ENDS - Tejo :P";
+    const sprite_data_endereye = {
+        id: 'Endereye',
+        greeting: sprite_greet_endereye,
+        src: sprite_src_endereye,
         SCALE_FACTOR: 8,
         ANIMATION_RATE: 1000000,
-        pixels: {height: 256, width: 352},
+        pixels: {height: 256, width: 256},
         INIT_POSITION: { x: (width / 2), y: (height / 2) },
-        orientation: {rows: 8, columns: 11 },
-        down: {row: 5, start: 0, columns: 3 },
+        orientation: {rows: 2, columns: 2 },
+        down: {row: 1, start: 0, columns: 1 },
         hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
         zIndex: 10,  // Same z-index as player
         quiz: { 
@@ -124,24 +122,411 @@ class GameLevelEnd {
           ] 
         },
         reaction: function() {
-          alert(sprite_greet_tux);
+          alert(sprite_greet_endereye);
         },
         interact: function() {
           let quiz = new Quiz();
           quiz.initialize();
-          quiz.openPanel(sprite_data_tux);
+          quiz.openPanel(sprite_data_endereye);
         }
     };
+
+    // Create 2 collectable ender eyes to cycle through
+    this.collectableEyes = [];
+    const ENDER_EYE_SCALE = 8; // Much smaller scale for collectables (reduced from 4 to 1)
+    
+    for (let i = 0; i < 2; i++) {
+      // Generate random positions within the bounds of the map
+      // Add some padding to avoid placing them too close to the edges
+      const padding = 100;
+      const randomX = padding + Math.random() * (width - (2 * padding));
+      const randomY = padding + Math.random() * (height - (2 * padding));
+      
+      const eyeId = `EnderEye_${i+1}`;
+      const sprite_data_collectableEye = {
+        id: eyeId,
+        greeting: `Ender Eye ${i+1} of 2. Press M to collect me!`,
+        src: sprite_src_endereye,
+        SCALE_FACTOR: ENDER_EYE_SCALE,
+        ANIMATION_RATE: 500, // Faster animation rate for a subtle effect
+        pixels: {height: 256, width: 256},
+        INIT_POSITION: { x: randomX, y: randomY },
+        orientation: {rows: 2, columns: 2},
+        down: {row: 0, start: 0, columns: 2}, // Using a different row for visual difference
+        hitbox: { widthPercentage: 0.8, heightPercentage: 0.8 },
+        zIndex: 8, // Above background but below main characters
+        isCollectable: true, // Flag to identify as a collectable item
+        collected: false, // Track if this eye has been collected
+        visible: false // Initial state - not visible
+      };
+      
+      this.collectableEyes.push(sprite_data_collectableEye);
+    }
 
     console.log("Setting up classes array");
     this.classes = [
       { class: BackgroundParallax, data: image_data_parallax },  // Add parallax background first
       { class: GamEnvBackground, data: image_data_end },         // Then regular background
       { class: Player, data: sprite_data_chillguy },
-      { class: Npc, data: sprite_data_tux },
+      { class: Npc, data: sprite_data_endereye },
       { class: Player, data: sprite_data_alex }
     ];
+    
+    // Add all collectable ender eyes to the classes array (they'll be hidden initially)
+    this.collectableEyes.forEach(eyeData => {
+      this.classes.push({ class: Npc, data: eyeData });
+    });
+    
     console.log("Classes array created with", this.classes.length, "items");
+    
+    // Set up collection counter
+    this.setupCollectionCounter();
+    
+    // Set up player's balance
+    this.playerBalance = 0;
+    this.setupBalanceDisplay();
+    
+    // Add key listener for 'M' key to collect ender eyes
+    this.setupKeyListener();
+    
+    // Start the cycling of ender eyes
+    this.currentVisibleEyeIndex = 0;
+    
+    // Set up the cycling interval
+    this.startEnderEyeCycle();
+  }
+  
+  /**
+   * Set up the player's balance display
+   */
+  setupBalanceDisplay() {
+    const balance = document.createElement('div');
+    balance.id = 'player-balance';
+    balance.style.position = 'fixed';
+    balance.style.top = '50px';
+    balance.style.left = '10px';
+    balance.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    balance.style.color = '#fff';
+    balance.style.padding = '10px';
+    balance.style.borderRadius = '5px';
+    balance.style.zIndex = '9999';
+    balance.style.fontFamily = 'Arial, sans-serif';
+    balance.style.fontSize = '18px';
+    balance.style.fontWeight = 'bold';
+    balance.textContent = 'Balance: 0';
+    document.body.appendChild(balance);
+  }
+  
+  /**
+   * Update the player's balance
+   */
+  updatePlayerBalance(amount) {
+    this.playerBalance += amount;
+    const balance = document.getElementById('player-balance');
+    if (balance) {
+      balance.textContent = `Balance: ${this.playerBalance}`;
+    }
+  }
+  
+  /**
+   * Start the cycling of ender eyes with random positions
+   */
+  startEnderEyeCycle() {
+    // Initial setup - hide all eyes
+    this.hideAllEnderEyes();
+    
+    // Make the first eye visible with a random position
+    if (this.collectableEyes.length > 0 && !this.collectableEyes[0].collected) {
+      this.randomizeEyePosition(0);
+      this.showEnderEye(0);
+    } else {
+      // If first eye is already collected, find next available one
+      this.cycleToNextEnderEye();
+    }
+    
+    // Set interval to cycle eyes every 10 seconds
+    this.cycleInterval = setInterval(() => {
+      this.cycleToNextEnderEye();
+    }, 10000); // 10 seconds
+  }
+  
+  /**
+   * Cycle to the next ender eye with a random position
+   */
+  cycleToNextEnderEye() {
+    // Hide current eye
+    this.hideEnderEye(this.currentVisibleEyeIndex);
+    
+    // Move to next eye (with wrap-around)
+    this.currentVisibleEyeIndex = (this.currentVisibleEyeIndex + 1) % this.collectableEyes.length;
+    
+    // Skip collected eyes
+    let attempts = 0;
+    while (this.collectableEyes[this.currentVisibleEyeIndex].collected && attempts < this.collectableEyes.length) {
+      this.currentVisibleEyeIndex = (this.currentVisibleEyeIndex + 1) % this.collectableEyes.length;
+      attempts++;
+    }
+    
+    // If all eyes are collected, stop cycling
+    if (attempts >= this.collectableEyes.length) {
+      clearInterval(this.cycleInterval);
+      this.showNotification("All ender eyes have been collected!", 5000);
+      return;
+    }
+    
+    // Randomize the position of the next eye
+    this.randomizeEyePosition(this.currentVisibleEyeIndex);
+    
+    // Show the next eye at its new position
+    this.showEnderEye(this.currentVisibleEyeIndex);
+  }
+  
+  /**
+   * Randomize the position of an ender eye
+   */
+  randomizeEyePosition(index) {
+    if (index < 0 || index >= this.collectableEyes.length) return;
+    
+    const eye = this.collectableEyes[index];
+    
+    // Get game dimensions
+    const width = document.documentElement.clientWidth;
+    const height = document.documentElement.clientHeight;
+    
+    // Generate random position within the bounds of the map
+    // Add some padding to avoid placing them too close to the edges
+    const padding = 100;
+    const randomX = padding + Math.random() * (width - (2 * padding));
+    const randomY = padding + Math.random() * (height - (2 * padding));
+    
+    // Update the position
+    eye.INIT_POSITION = { x: randomX, y: randomY };
+    
+    // Find the instance for this eye and update its position
+    let eyeInstance = this.findEyeInstance(eye.id);
+    if (eyeInstance) {
+      eyeInstance.position = { x: randomX, y: randomY };
+      
+      // Update the DOM element position if it exists
+      if (eyeInstance.element) {
+        eyeInstance.element.style.left = `${randomX}px`;
+        eyeInstance.element.style.top = `${randomY}px`;
+      }
+    }
+    
+    console.log(`Eye ${index + 1} position randomized to (${Math.round(randomX)}, ${Math.round(randomY)})`);
+  }
+  
+  /**
+   * Hide all ender eyes
+   */
+  hideAllEnderEyes() {
+    this.collectableEyes.forEach((eye, index) => {
+      this.hideEnderEye(index);
+    });
+  }
+  
+  /**
+   * Hide a specific ender eye
+   */
+  hideEnderEye(index) {
+    if (index < 0 || index >= this.collectableEyes.length) return;
+    
+    const eye = this.collectableEyes[index];
+    eye.visible = false;
+    
+    // Find the instance for this eye
+    let eyeInstance = this.findEyeInstance(eye.id);
+    if (eyeInstance && eyeInstance.element) {
+      eyeInstance.element.style.display = 'none';
+    }
+  }
+  
+  /**
+   * Show a specific ender eye
+   */
+  showEnderEye(index) {
+    if (index < 0 || index >= this.collectableEyes.length) return;
+    
+    const eye = this.collectableEyes[index];
+    if (eye.collected) return; // Don't show collected eyes
+    
+    eye.visible = true;
+    
+    // Find the instance for this eye
+    let eyeInstance = this.findEyeInstance(eye.id);
+    if (eyeInstance && eyeInstance.element) {
+      eyeInstance.element.style.display = 'block';
+      
+      // Ensure position is updated
+      eyeInstance.element.style.left = `${eye.INIT_POSITION.x}px`;
+      eyeInstance.element.style.top = `${eye.INIT_POSITION.y}px`;
+      
+      // Add a small animation effect for appearing
+      eyeInstance.element.style.transition = 'transform 0.5s ease-in-out';
+      eyeInstance.element.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        if (eyeInstance.element) {
+          eyeInstance.element.style.transform = 'scale(1)';
+        }
+      }, 500);
+    }
+    
+    // Show a notification about the eye appearing
+    this.showNotification(`Ender Eye appeared! Find it quickly!`, 2000);
+  }
+  
+  /**
+   * Find the NPC instance for an eye ID
+   */
+  findEyeInstance(eyeId) {
+    let eyeInstance = null;
+    this.classes.forEach(obj => {
+      if (obj.class === Npc && obj.data.id === eyeId && obj.instance) {
+        eyeInstance = obj.instance;
+      }
+    });
+    return eyeInstance;
+  }
+  
+  /**
+   * Set up the collection counter display
+   */
+  setupCollectionCounter() {
+    const counter = document.createElement('div');
+    counter.id = 'ender-eye-counter';
+    counter.style.position = 'fixed';
+    counter.style.top = '10px';
+    counter.style.left = '10px';
+    counter.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    counter.style.color = '#fff';
+    counter.style.padding = '10px';
+    counter.style.borderRadius = '5px';
+    counter.style.zIndex = '9999';
+    counter.style.fontFamily = 'Arial, sans-serif';
+    counter.style.fontSize = '18px';
+    counter.style.fontWeight = 'bold';
+    counter.textContent = 'Ender Eyes: 0/2';
+    document.body.appendChild(counter);
+  }
+  
+  /**
+   * Set up key listener for collecting ender eyes with 'M' key
+   */
+  setupKeyListener() {
+    document.addEventListener('keydown', (e) => {
+      // Check if M key is pressed (key code 77)
+      if (e.keyCode === 77) {
+        this.tryCollectEnderEyes();
+      }
+    });
+  }
+  
+  /**
+   * Try to collect any ender eyes that are close to the player
+   */
+  tryCollectEnderEyes() {
+    // Find player character(s)
+    const players = [];
+    this.classes.forEach(obj => {
+      if (obj.class === Player && obj.instance) {
+        players.push(obj.instance);
+      }
+    });
+    
+    // For each player, check for nearby collectable eyes
+    players.forEach(player => {
+      if (!player.position) return;
+      
+      // Check each collectable eye
+      this.collectableEyes.forEach((eyeData, index) => {
+        // Only try to collect visible and uncollected eyes
+        if (eyeData.collected || !eyeData.visible) return;
+        
+        // Find the NPC instance for this eye
+        let eyeInstance = this.findEyeInstance(eyeData.id);
+        if (!eyeInstance || !eyeInstance.position) return;
+        
+        // Calculate distance between player and eye
+        const dx = player.position.x - eyeInstance.position.x;
+        const dy = player.position.y - eyeInstance.position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Collect if player is close enough (adjust this value as needed)
+        const collectionRadius = 100;
+        if (distance <= collectionRadius) {
+          this.collectEye(index, eyeInstance);
+        }
+      });
+    });
+  }
+  
+  /**
+   * Collect an ender eye
+   */
+  collectEye(index, eyeInstance) {
+    // Mark as collected
+    this.collectableEyes[index].collected = true;
+    this.collectableEyes[index].visible = false;
+    
+    // Hide the eye from the screen
+    if (eyeInstance.element) {
+      eyeInstance.element.style.display = 'none';
+    }
+    
+    // Update the counter
+    const collected = this.collectableEyes.filter(eye => eye.collected).length;
+    const counter = document.getElementById('ender-eye-counter');
+    if (counter) {
+      counter.textContent = `Ender Eyes: ${collected}/2`;
+    }
+    
+    // Increase player's balance
+    this.updatePlayerBalance(10); // Add 10 to balance for each eye collected
+    
+    // Show a notification
+    this.showNotification(`Collected Ender Eye ${index + 1}! +10 balance`);
+    
+    // Check if all eyes are collected
+    if (collected === 2) {
+      setTimeout(() => {
+        this.showNotification("Congratulations! You've collected all 2 Ender Eyes!", 5000);
+        // Stop the cycling when all eyes are collected
+        clearInterval(this.cycleInterval);
+      }, 1000);
+    } else {
+      // If we collected the currently visible eye, immediately cycle to the next one
+      if (index === this.currentVisibleEyeIndex) {
+        this.cycleToNextEnderEye();
+      }
+    }
+  }
+  
+  /**
+   * Show a notification to the player
+   */
+  showNotification(message, duration = 2000) {
+    const notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.top = '50%';
+    notification.style.left = '50%';
+    notification.style.transform = 'translate(-50%, -50%)';
+    notification.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    notification.style.color = '#fff';
+    notification.style.padding = '20px';
+    notification.style.borderRadius = '10px';
+    notification.style.zIndex = '10000';
+    notification.style.fontSize = '24px';
+    notification.style.fontWeight = 'bold';
+    notification.style.textAlign = 'center';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after duration
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, duration);
   }
   
   /**
@@ -154,7 +539,7 @@ class GameLevelEnd {
     img.src = imageSrc;
   }
   
-  /**
+  /*
    * Create a debug button to show/test the base path
    */
   createPathDebugger(path) {
@@ -221,6 +606,17 @@ class GameLevelEnd {
       html += `<p>Total canvases: ${canvases.length}</p>`;
       canvases.forEach((canvas, i) => {
         html += `<p>Canvas #${i}: id=${canvas.id}, z-index=${getComputedStyle(canvas).zIndex}, visibility=${getComputedStyle(canvas).visibility}, display=${getComputedStyle(canvas).display}</p>`;
+      });
+      
+      // Add ender eye collection info
+      html += `<h3>Ender Eye Collection Status</h3>`;
+      html += `<p>Total Eyes: ${this.collectableEyes.length}</p>`;
+      html += `<p>Collected: ${this.collectableEyes.filter(eye => eye.collected).length}</p>`;
+      html += `<p>Currently Visible: Eye #${this.currentVisibleEyeIndex + 1}</p>`;
+      html += `<p>Next Rotation: In ${Math.round((10000 - (Date.now() % 10000)) / 1000)} seconds</p>`;
+      html += `<p>Player Balance: ${this.playerBalance}</p>`;
+      this.collectableEyes.forEach((eye, i) => {
+        html += `<p>Eye #${i+1}: ${eye.collected ? 'Collected' : (eye.visible ? 'Visible' : 'Hidden')} - Position: (${Math.round(eye.INIT_POSITION.x)}, ${Math.round(eye.INIT_POSITION.y)})</p>`;
       });
       
       debugInfo.innerHTML = html;

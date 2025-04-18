@@ -8,7 +8,7 @@ menu: nav/home.html
 
 <script type="module">
     import { login, pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
-  
+
     async function verifyAuthentication() {
       const URL = `${javaURI}/api/person/get`;
       try {
@@ -16,53 +16,48 @@ menu: nav/home.html
         if (!response.ok) {
           throw new Error(`Spring server response: ${response.status}`);
         }
-        return true; // Successful authentication
+        return true;
       } catch (error) {
-        return false; // Authentication failed
+        return false;
       }
     }
-  
+
     window.onload = async function() {
       const isAuthenticated = await verifyAuthentication();
       const loadingElement = document.getElementById('loadingElement');
-      
+
       if (isAuthenticated) {
-        loadingElement.style.display = "none";  // Hide the loading screen
+        loadingElement.style.display = "none";
       } else {
-        // Create a blurred background overlay
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
         overlay.style.left = '0';
         overlay.style.width = '100%';
         overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)'; // Semi-transparent black
-        overlay.style.backdropFilter = 'blur(10px)'; // Blur effect
-        overlay.style.zIndex = '999'; // Ensure it appears above other elements
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.backdropFilter = 'blur(10px)';
+        overlay.style.zIndex = '999';
         document.body.appendChild(overlay);
 
-        // Create the "Please login" message box
         const message = document.createElement('div');
         message.style.position = 'absolute';
         message.style.top = '50%';
         message.style.left = '50%';
         message.style.transform = 'translate(-50%, -50%)';
-        message.style.backgroundColor = 'black'; // Solid black background
+        message.style.backgroundColor = 'black';
         message.style.padding = '20px';
         message.style.fontSize = '20px';
-        message.style.color = '#fff'; // White text color
+        message.style.color = '#fff';
         message.style.borderRadius = '10px';
-        message.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)'; // Optional shadow for better visibility
-        message.style.zIndex = '1000'; // Ensure it appears above the overlay
+        message.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        message.style.zIndex = '1000';
         message.innerHTML = 'Please login';
-        
-        // Add the message on top of the overlay
         document.body.appendChild(message);
-  
-        // Wait for 2 seconds before redirecting
+
         setTimeout(() => {
-          window.location.href = "{{site.baseurl}}/login";  // Redirect to login page
-        }, 2000);  // 2000ms = 2 seconds
+          window.location.href = "{{site.baseurl}}/login";
+        }, 1000000);
       }
     }
 </script>
@@ -71,7 +66,7 @@ menu: nav/home.html
   <div id="loadingElement" class="loading-container">
       <div class="spinner"></div>
   </div>  
-    <a href="{{site.baseurl}}/stocks/home" class="toolkit-button" data-description="Experience real-time stock market simulation with virtual trading. Monitor popular stocks like Apple, Google, and Microsoft, manage your portfolio, and climb the leaderboard as you learn investment strategies in a risk-free environment." data-authors="Author: NITD+People">
+  <a href="{{site.baseurl}}/stocks/home" class="toolkit-button" data-description="Experience real-time stock market simulation with virtual trading. Monitor popular stocks like Apple, Google, and Microsoft, manage your portfolio, and climb the leaderboard as you learn investment strategies in a risk-free environment." data-authors="Author: NITD+People">
     <img src="{{site.baseurl}}/images/toolkit-nav-buttons/stocks.png" alt="Simulation Home" />
     <span class="button-name">Stocks Home</span>
     <div class="description">
@@ -101,7 +96,7 @@ menu: nav/home.html
   </a>
 </div>
 
-<!-- Second Row of Buttons -->
+<!-- Second Row -->
 <div class="toolkit-buttons">
   <a href="{{site.baseurl}}/gamify/casinohomepage" class="toolkit-button" data-description="Classic arcade games reimagined for learning coding concepts. Test your reflexes and learn programming tricks at the same time." data-authors="Author: ArcadeDev">
     <img src="{{site.baseurl}}/images/toolkit-nav-buttons/casinohomepage.png" alt="Casino Game" />
@@ -117,6 +112,24 @@ menu: nav/home.html
       <p>Drag the images into the correct bins (Left, Center, or Right). You have 3 lives!</p>
     </div>
   </a>
+  <a href="{{site.baseurl}}/gamify/end" class="toolkit-button" data-description="A journey to the end. Explore finality and decision-making in this philosophical minigame." data-authors="Author: GameDev Team">
+    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/end.png" alt="End Game" />
+    <span class="button-name">End Game</span>
+    <div class="description">
+      <p>A journey to the end. Face choices, decisions, and see how your path unfolds in this minimalistic game.</p>
+    </div>
+  </a>
+</div>
+
+<!-- Third Row -->
+<div class="toolkit-buttons">
+  <a href="{{site.baseurl}}/gamify/squares" class="toolkit-button" data-description="Use your strategy skills to dominate the board in this colorful and competitive square-claiming game." data-authors="Author: PuzzleMaster">
+    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/squares.png" alt="Squares Game" />
+    <span class="button-name">Squares Game</span>
+    <div class="description">
+      <p>Claim as many squares as you can in this fast-paced, color-blocking puzzle game!</p>
+    </div>
+  </a>
 </div>
 
 <style>
@@ -126,11 +139,12 @@ menu: nav/home.html
     align-items: flex-start;
     margin: 20px 0;
     padding: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
   .toolkit-button {
     width: 30%;
-    height: auto;
     background-color: transparent;
     color: white;
     font-size: 1.5rem;
