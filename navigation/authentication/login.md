@@ -64,7 +64,7 @@ show_reading_time: false
     <div class="login-card">
         <h1 id="pythonTitle">User Login</h1>
         <hr>
-        <form id="pythonForm" onsubmit="loginBoth(event);">
+        <form id="pythonForm" onsubmit="loginBoth();">
             <div class="form-group">
                 <input type="text" id="uid" placeholder="GitHub ID" required>
             </div>
