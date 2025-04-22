@@ -4,7 +4,6 @@ layout: post
 title: Team Teach Grades and Comments
 description: Grades and comments for team teaching
 permalink: /student/TeamTeachToolkit/teaching-grades
-
 ---
 
 <style>

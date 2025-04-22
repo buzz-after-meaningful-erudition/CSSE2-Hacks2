@@ -216,9 +216,10 @@ permalink: /student/SAGAI/review
 <body>
     <!-- Navigation buttons -->
     <div class="nav-buttons">
-        <a href="{{site.baseurl}}/student/SAGAI"><button>Home</button></a>
-        <a href="{{site.baseurl}}/student/SAGAI/grader"><button>Grader</button></a>
-        <a href="{{site.baseurl}}/student/SAGAI/generator"><button>Generator</button></a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit"><button>Home</button></a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/grader"><button>Grader</button></a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/generator"><button>Generator</button></a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/signup"><button>Sign Up</button></a>
     </div>
     <!-- Main Q&A Section -->
     <div class="container">
