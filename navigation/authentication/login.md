@@ -287,7 +287,7 @@ show_reading_time: false
             .then(data => {
                 document.getElementById("signupMessage").textContent = "Signup successful!";
                 // Optionally redirect to login page or handle as needed
-                // window.location.href = '{{site.baseurl}}/profile';
+                window.location.href = '{{site.baseurl}}/profile';
             })
             .catch(error => {
                 console.error("Signup Error:", error);
