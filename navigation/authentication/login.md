@@ -251,12 +251,14 @@ window.signup = function () {
         email: document.getElementById("signupUid").value,
         dob: "11-01-2024", // You can dynamically get this
         name: document.getElementById("name").value,
+        uid: document.getElementById("signupUid").value,
         sid: document.getElementById("signupSid").value,
         password: document.getElementById("signupPassword").value,
         kasmServerNeeded: document.getElementById("kasmNeeded").checked,
     };
      const signupDataPython = {
         name: document.getElementById("name").value,
+        uid: document.getElementById("signupUid").value,
         password: document.getElementById("signupPassword").value,
         kasmServerNeeded: document.getElementById("kasmNeeded").checked,
     };
