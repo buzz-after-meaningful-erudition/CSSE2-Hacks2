@@ -270,7 +270,7 @@ window.signup = function () {
         headers: new Headers({
             "Content-Type": "application/json"
         }),
-        body: JSON.stringify(signupData),
+        body: JSON.stringify(signupDataPython),
     };
     // Second, make the request to the Java backend
     const javaSignupOptions = {
@@ -280,7 +280,7 @@ window.signup = function () {
         headers: new Headers({
             "Content-Type": "application/json"
         }),
-        body: JSON.stringify(signupDataPython),
+        body: JSON.stringify(signupData),
     };
     // Perform the fetch to both servers in parallel using Promise.all
     Promise.all([
