@@ -58,7 +58,8 @@ title: Stocks Viewer
       padding: 20px;
       overflow-y:scroll;
       position: relative; 
-      height: 100%
+      height: 100%;
+      z-index: 0;
     }
     .sidebar h2 {
       font-size: 1.2em;
