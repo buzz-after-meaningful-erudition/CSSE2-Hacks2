@@ -251,7 +251,7 @@ window.signup = function () {
         email: document.getElementById("signupUid").value,
         dob: "11-01-2024", // You can dynamically get this
         name: document.getElementById("name").value,
-        sid: document.getElementById("signupSid").val
+        sid: document.getElementById("signupSid").value,
         password: document.getElementById("signupPassword").value,
         kasmServerNeeded: document.getElementById("kasmNeeded").checked,
     };
