@@ -1,0 +1,35 @@
+links:
+  - id: submissions
+    href: student/submissions
+    label: Submission Page
+    icon: images/toolkit-nav-buttons/submissions.png
+
+  - id: bathroom
+    href: bathroom
+    label: Bathroom System
+    icon: images/toolkit-nav-buttons/bathroom.png
+
+  - id: groups
+    href: teacher-toolkit/groups
+    label: Group Page
+    icon: images/toolkit-nav-buttons/groups.png
+
+  - id: queue
+    href: student-toolkit/queue
+    label: Screen Queue
+    icon: images/toolkit-nav-buttons/group-chat.png
+
+  - id: seed
+    href: student/seedtracker
+    label: Seed Tracker
+    icon: images/toolkit-nav-buttons/seedtracker.png
+
+  - id: grades
+    href: student/view-grades
+    label: Grade Viewer
+    icon: images/toolkit-nav-buttons/view-grades.png
+
+  - id: sagai
+    href: student/SAGAI
+    label: SAGAI
+    icon: images/toolkit-nav-buttons/sagai.png

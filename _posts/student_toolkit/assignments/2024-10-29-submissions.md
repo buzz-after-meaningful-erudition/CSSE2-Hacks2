@@ -1,12 +1,10 @@
 ---
-toc: false
+layout: toolkit
 title: Submission Page
+active_tab: submissions
 permalink: /student/submissions
-search_exclude: true
-layout: post
 ---
 
-<title>Submission Form</title>
 <style>
     #searchBar,
     #rowsPerPage {

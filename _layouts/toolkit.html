@@ -1,0 +1,29 @@
+---
+layout: base
+---
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  body {
+    overflow: hidden;
+  }
+  .wrapper {
+    margin: 0;
+    padding: 0;
+  }
+  .page-content {
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<div class="flex">
+  <div class="w-64 bg-gray-800 min-h-screen p-6">
+    {% include toolkit/sidebar.html %}
+  </div>
+
+  <main class="flex-1 p-8">
+    {{ content }}
+  </main>
+</div>

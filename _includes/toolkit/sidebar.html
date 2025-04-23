@@ -1,0 +1,34 @@
+<aside class="text-white">
+    <div>
+      <a href="{{ site.baseurl }}/student" class="block mb-4 text-[#4ea1f3] hover:underline">
+        &larr; Back to main menu
+      </a>
+      <h3 class="text-lg font-semibold mb-4 text-white">Student Toolkit</h3>
+      <nav class="space-y-2">
+        {% for link in site.data.toolkit.links %}
+          <a href="{{ site.baseurl }}/{{ link.href }}"
+             class="block ml-4 pl-2 border-l-2
+             {% if page.active_tab == link.id %}
+               border-[#4ea1f3] text-white font-semibold
+             {% else %}
+               border-transparent text-[#4ea1f3] hover:border-[#4ea1f3] hover:text-white
+             {% endif %}">
+            {{ link.label }}
+          </a>
+        {% endfor %}
+      </nav>
+    </div>
+  
+    {% assign active = site.data.toolkit.links | where: "id", page.active_tab | first %}
+  
+    <div class="w-24 h-24 mt-4 self-center">
+      {% if active and active.icon %}
+        <img src="{{ site.baseurl }}/{{ active.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
+      {% else %}
+        <div class="w-full h-full bg-gray-500 flex items-center justify-center rounded-md text-sm text-black">
+          No Icon
+        </div>
+      {% endif %}
+    </div>
+  </aside>
+  

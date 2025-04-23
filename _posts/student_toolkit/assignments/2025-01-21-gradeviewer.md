@@ -1,8 +1,8 @@
 ---
-layout: base
+layout: toolkit
+active_tab: grades
 title: Viewing Grades
 permalink: /student/view-grades
-comments: false
 ---
 <style>
     .styled-table {
