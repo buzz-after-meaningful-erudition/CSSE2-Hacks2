@@ -1,6 +1,6 @@
 ---
-toc: true
-layout: post
+layout: toolkit
+active_tab: sagai
 title: Assignment Management
 description: Assignment management system
 permalink: /student/SAGAI/assignment-manager

@@ -2,7 +2,7 @@
 layout: toolkit
 active_tab: grades
 title: Viewing Grades
-permalink: /student/view-grades
+permalink: /student/grades
 ---
 <style>
     .styled-table {

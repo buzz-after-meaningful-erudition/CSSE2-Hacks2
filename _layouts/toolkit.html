@@ -6,13 +6,16 @@ layout: base
 
 <style>
   body {
-    overflow: hidden;
-  }
-  .wrapper {
     margin: 0;
     padding: 0;
+    overflow: hidden;
   }
-  .page-content {
+  main.page-content > div.wrapper {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+  main.page-content {
     margin: 0;
     padding: 0;
   }

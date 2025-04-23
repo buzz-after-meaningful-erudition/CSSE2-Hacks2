@@ -1,6 +1,6 @@
 ---
-toc: false
-layout: post
+layout: toolkit
+active_tab: sagai
 title: Hacks Grader
 permalink: /student/SAGAI/grader
 description: Grade hacks on a 0.55 scale while also providing feedback

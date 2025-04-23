@@ -10,12 +10,12 @@ links:
     icon: images/toolkit-nav-buttons/bathroom.png
 
   - id: groups
-    href: teacher-toolkit/groups
+    href: student/groups
     label: Group Page
     icon: images/toolkit-nav-buttons/groups.png
 
   - id: queue
-    href: student-toolkit/queue
+    href: student/queue
     label: Screen Queue
     icon: images/toolkit-nav-buttons/group-chat.png
 
@@ -25,11 +25,11 @@ links:
     icon: images/toolkit-nav-buttons/seedtracker.png
 
   - id: grades
-    href: student/view-grades
+    href: student/grades
     label: Grade Viewer
     icon: images/toolkit-nav-buttons/view-grades.png
 
   - id: sagai
-    href: student/SAGAI
+    href: student/SAGAI/generator
     label: SAGAI
     icon: images/toolkit-nav-buttons/sagai.png

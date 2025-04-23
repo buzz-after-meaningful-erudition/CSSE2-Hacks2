@@ -1,6 +1,6 @@
 ---
-toc: false
-layout: post
+layout: toolkit
+active_tab: seed
 title: Seed Tracker Teacher
 type: ccc
 permalink: /student/seedtracker
