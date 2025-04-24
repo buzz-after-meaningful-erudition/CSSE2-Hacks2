@@ -1,17 +1,28 @@
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
-<aside class="text-white" x-data="{ 
+<aside class="text-white" x-data="{
   openMenus: {},
   initializeMenus() {
+    const hash = window.location.hash.substring(1); // Get hash without '#'
     {% for link in site.data.toolkit.links %}
       {% if link.submenu %}
+        this.openMenus['{{ link.id }}'] = this.openMenus['{{ link.id }}'] || (hash === 'menu-{{ link.id }}');
         {% for sublink in link.submenu %}
-          {% if page.active_tab == sublink.id %}
+          if ('{{ page.active_tab }}' === '{{ sublink.id }}' && hash === 'menu-{{ link.id }}') {
             this.openMenus['{{ link.id }}'] = true;
-          {% endif %}
+          }
         {% endfor %}
       {% endif %}
     {% endfor %}
+  },
+  toggleMenu(menuId) {
+    this.openMenus[menuId] = !this.openMenus[menuId];
+    if (this.openMenus[menuId]) {
+      window.location.hash = 'menu-' + menuId;
+    } else {
+      // Optionally remove hash if closing
+      if (window.location.hash === '#menu-' + menuId) {
+        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+      }
+    }
   }
 }" x-init="initializeMenus()">
   <div>
@@ -31,7 +42,7 @@
                 border-transparent text-[#4ea1f3] hover:border-[#4ea1f3] hover:text-white
               {% endif %}"
             {% if link.submenu %}
-              @click.stop="openMenus['{{ link.id }}'] = !openMenus['{{ link.id }}']"
+              @click.stop="toggleMenu('{{ link.id }}')"
             {% endif %}
           >
             <a href="{{ site.baseurl }}/{{ link.href }}" class="flex-1">
@@ -48,9 +59,9 @@
           </div>
 
           {% if link.submenu %}
-            <div class="ml-8 mt-1 space-y-1 text-sm text-[#d1d5db]" 
-                 x-show="openMenus['{{ link.id }}']" 
-                 x-transition 
+            <div class="ml-8 mt-1 space-y-1 text-sm text-[#d1d5db]"
+                 x-show="openMenus['{{ link.id }}']"
+                 x-transition
                  x-cloak>
               {% for sublink in link.submenu %}
                 <a href="{{ site.baseurl }}/{{ sublink.href }}"
@@ -67,7 +78,7 @@
 
   {% assign active_parent = nil %}
   {% assign active = site.data.toolkit.links | where: "id", page.active_tab | first %}
-  
+
   {% if active == nil %}
     {% for link in site.data.toolkit.links %}
       {% if link.submenu %}
