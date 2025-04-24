@@ -5,9 +5,16 @@ links:
     icon: images/toolkit-nav-buttons/submissions.png
 
   - id: bathroom
-    href: hallpass
+    href: hallpass 
     label: Bathroom System
     icon: images/toolkit-nav-buttons/bathroom.png
+    submenu:
+      - id: hallpass
+        href: hallpass
+        label: Hall Pass
+      - id: requestpass
+        href: hallpass/requestpass
+        label: Request Pass
 
   - id: groups
     href: student/groups

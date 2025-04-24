@@ -1,34 +1,66 @@
-<aside class="text-white">
-    <div>
-      <a href="{{ site.baseurl }}/student" class="block mb-4 text-[#4ea1f3] hover:underline">
-        &larr; Back to main menu
-      </a>
-      <h3 class="text-lg font-semibold mb-4 text-white">Student Toolkit</h3>
-      <nav class="space-y-2">
-        {% for link in site.data.toolkit.links %}
-          <a href="{{ site.baseurl }}/{{ link.href }}"
-             class="block ml-4 pl-2 border-l-2
-             {% if page.active_tab == link.id %}
-               border-[#4ea1f3] text-white font-semibold
-             {% else %}
-               border-transparent text-[#4ea1f3] hover:border-[#4ea1f3] hover:text-white
-             {% endif %}">
-            {{ link.label }}
-          </a>
-        {% endfor %}
-      </nav>
-    </div>
-  
-    {% assign active = site.data.toolkit.links | where: "id", page.active_tab | first %}
-  
-    <div class="w-24 h-24 mt-4 self-center">
-      {% if active and active.icon %}
-        <img src="{{ site.baseurl }}/{{ active.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
-      {% else %}
-        <div class="w-full h-full bg-gray-500 flex items-center justify-center rounded-md text-sm text-black">
-          No Icon
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<aside class="text-white" x-data="{ openMenus: {} }">
+  <div>
+    <a href="{{ site.baseurl }}/student" class="block mb-4 text-[#4ea1f3] hover:underline">
+      &larr; Back to main menu
+    </a>
+    <h3 class="text-lg font-semibold mb-4 text-white">Student Toolkit</h3>
+
+    <nav class="space-y-2">
+      {% for link in site.data.toolkit.links %}
+        <div>
+          <div
+            class="flex items-center justify-between ml-4 pl-2 border-l-2 cursor-pointer
+              {% if page.active_tab == link.id %}
+                border-[#4ea1f3] text-white font-semibold
+              {% else %}
+                border-transparent text-[#4ea1f3] hover:border-[#4ea1f3] hover:text-white
+              {% endif %}"
+            {% if link.submenu %}
+              @click.stop="openMenus['{{ link.id }}'] = !openMenus['{{ link.id }}']"
+            {% endif %}
+          >
+            <a href="{{ site.baseurl }}/{{ link.href }}" class="flex-1">
+              {{ link.label }}
+            </a>
+            {% if link.submenu %}
+              <svg :class="{'rotate-180': openMenus['{{ link.id }}']}" class="transition-transform duration-300 w-4 h-4 ml-2"
+                   xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                   stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 9l-7 7-7-7"/>
+              </svg>
+            {% endif %}
+          </div>
+
+          {% if link.submenu %}
+            <div class="ml-8 mt-1 space-y-1 text-sm text-[#d1d5db]" 
+                 x-show="openMenus['{{ link.id }}']" 
+                 x-transition 
+                 x-cloak>
+              {% for sublink in link.submenu %}
+                <a href="{{ site.baseurl }}/{{ sublink.href }}"
+                   class="block hover:text-white {% if page.active_tab == sublink.id %} text-white font-semibold {% endif %}">
+                  {{ sublink.label }}
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
-    </div>
-  </aside>
-  
+      {% endfor %}
+    </nav>
+  </div>
+
+  {% assign active = site.data.toolkit.links | where: "id", page.active_tab | first %}
+
+  <div class="w-24 h-24 mt-4 self-center">
+    {% if active and active.icon %}
+      <img src="{{ site.baseurl }}/{{ active.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
+    {% else %}
+      <div class="w-full h-full bg-gray-500 flex items-center justify-center rounded-md text-sm text-black">
+        No Icon
+      </div>
+    {% endif %}
+  </div>
+</aside>
