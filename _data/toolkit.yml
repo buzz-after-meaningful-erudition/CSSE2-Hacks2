@@ -36,7 +36,7 @@ links:
     label: Grade Viewer
     icon: images/toolkit-nav-buttons/view-grades.png
 
-  - id: sagai
-    href: student/SAGAI/generator
-    label: SAGAI
+  - id: Team Teach Toolkit
+    href: student/TeamTeachToolkit/signup
+    label: TeamTeach Toolkit
     icon: images/toolkit-nav-buttons/sagai.png
