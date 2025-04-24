@@ -5,149 +5,6 @@ active_tab: submissions
 permalink: /student/submissions
 ---
 
-<style>
-    #searchBar,
-    #rowsPerPage {
-        width: auto;
-        /* Automatically adjust to content size */
-        max-width: 250px;
-        /* Limit max width */
-    }
-
-    /* Container for search bar and rows per page */
-    #search-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-
-    /* Adjust submission section size */
-    #submission-section {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    /* For the buttons and table in the student section */
-    #namesTableBody {
-        width: 75%;
-        max-height: 50px;
-        overflow-y: auto;
-    }
-
-    #timer-container {
-        text-align: center;
-        font-size: 24px;
-        font-family: Arial, sans-serif;
-        margin-top: 20px;
-    }
-
-    #time-left {
-        font-weight: bold;
-        transition: color 0.3s ease;
-    }
-
-    select,
-    input[type="url"],
-    textarea,
-    button {
-        width: 100%;
-        padding: 15px;
-        font-size: 18px;
-        margin: 12px 0;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 150px;
-    }
-
-    .modal-content h2 {
-        font-size: 28px;
-        color: white;
-        margin-bottom: 20px;
-    }
-
-    .output-box {
-        margin-top: 15px;
-        font-size: 30px;
-        color: #ffffff;
-        animation: moving-glow2 2s infinite;
-    }
-
-    .Assignment-Name {
-        font-size: 20px;
-        color: white;
-    }
-
-    .Assignment-Content {
-        font-size: 16px;
-        color: white;
-    }
-
-    @keyframes moving-glow {
-        0% {
-            box-shadow: 0 0 10px rgba(81, 0, 255, 0.8);
-        }
-
-        50% {
-            box-shadow: 0 0 30px rgba(81, 0, 255, 0.8);
-        }
-
-        100% {
-            box-shadow: 0 0 10px rgba(81, 0, 255, 0.8);
-        }
-    }
-
-    @keyframes moving-glow2 {
-        0% {
-            box-shadow: 0 0 10px rgba(0, 255, 162, 0.8);
-        }
-
-        50% {
-            box-shadow: 0 0 30px rgba(0, 255, 162, 0.8);
-        }
-
-        100% {
-            box-shadow: 0 0 10px rgba(0, 255, 162, 0.8);
-        }
-    }
-
-    @keyframes shake {
-
-        0%,
-        100% {
-            transform: translateX(0);
-        }
-
-        10%,
-        30%,
-        50%,
-        70%,
-        90% {
-            transform: translateX(-5px);
-        }
-
-        20%,
-        40%,
-        60%,
-        80% {
-            transform: translateX(5px);
-        }
-    }
-
-    .shake {
-        animation: shake 0.5s infinite;
-    }
-
-    .message {
-        font-size: 15px;
-    }
-</style>
 
 <!-- toggle switch -->
 <div class="toggle-container">
@@ -171,13 +28,11 @@ permalink: /student/submissions
         </select>
     </div>
     <div class="Assignment-Content" id="Assignment-Content">Assignment-Content</div>
-
     <!-- time left -->
     <div id="timer-container">
         <p id="time-left"></p>
     </div>
     <br><br>
-
     <!-- group submitting -->
     <div class="Group Submit" id="Group Submit">
         <div>
@@ -213,14 +68,12 @@ permalink: /student/submissions
         <div class="Review-Group" id="Review-Group">Group Members: </div>
         <br><br><br>
     </div>
-
     <!-- submission contents (ex: link) -->
     <div>
         <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
         <input type="url" id="submissionContent" required />
     </div>
     <br><br>
-
     <!-- comments you might have -->
     <div>
         <label for="comments" style="font-size: 18px;">Comments:</label>
