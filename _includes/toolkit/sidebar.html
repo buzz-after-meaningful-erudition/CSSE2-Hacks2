@@ -4,9 +4,9 @@
     const hash = window.location.hash.substring(1); // Get hash without '#'
     {% for link in site.data.toolkit.links %}
       {% if link.submenu %}
-        this.openMenus['{{ link.id }}'] = this.openMenus['{{ link.id }}'] || (hash === 'menu-{{ link.id }}');
+        this.openMenus['{{ link.id }}'] = (hash === 'menu-{{ link.id }}');
         {% for sublink in link.submenu %}
-          if ('{{ page.active_tab }}' === '{{ sublink.id }}' && hash === 'menu-{{ link.id }}') {
+          if ('{{ page.active_tab }}' === '{{ sublink.id }}' && !this.openMenus['{{ link.id }}']) {
             this.openMenus['{{ link.id }}'] = true;
           }
         {% endfor %}
@@ -14,19 +14,22 @@
     {% endfor %}
   },
   toggleMenu(menuId) {
+    console.log('Toggling menu:', menuId, 'Current state:', this.openMenus[menuId]);
     this.openMenus[menuId] = !this.openMenus[menuId];
+    console.log('New state:', this.openMenus[menuId]);
     if (this.openMenus[menuId]) {
       window.location.hash = 'menu-' + menuId;
+      console.log('Hash set to:', window.location.hash);
     } else {
-      // Optionally remove hash if closing
       if (window.location.hash === '#menu-' + menuId) {
         history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        console.log('Hash removed');
       }
     }
   }
 }" x-init="initializeMenus()">
   <div>
-    <a href="{{ site.baseurl }}/student" class="block mb-4 text-[#4ea1f3] hover:underline">
+    <a href="{{ site.baseurl }}/student" class="block mb-4 text-blue-400 hover:underline">
       &larr; Back to main menu
     </a>
     <h3 class="text-lg font-semibold mb-4 text-white">Student Toolkit</h3>
@@ -37,9 +40,9 @@
           <div
             class="flex items-center justify-between ml-4 pl-2 border-l-2 cursor-pointer
               {% if page.active_tab == link.id %}
-                border-[#4ea1f3] text-white font-semibold
+                border-blue-400 text-white font-semibold
               {% else %}
-                border-transparent text-[#4ea1f3] hover:border-[#4ea1f3] hover:text-white
+                border-transparent text-blue-400 hover:border-blue-400 hover:text-white
               {% endif %}"
             {% if link.submenu %}
               @click.stop="toggleMenu('{{ link.id }}')"
@@ -59,7 +62,7 @@
           </div>
 
           {% if link.submenu %}
-            <div class="ml-8 mt-1 space-y-1 text-sm text-[#d1d5db]"
+            <div class="ml-8 mt-1 space-y-1 text-sm text-gray-300 pl-4"
                  x-show="openMenus['{{ link.id }}']"
                  x-transition
                  x-cloak>
