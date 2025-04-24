@@ -8,6 +8,10 @@ layout: base
   body {
     margin: 0;
     padding: 0;
+<<<<<<< HEAD
+=======
+    /* overflow: hidden; */
+>>>>>>> a9910d61 (comment out the overflow hidden)
   }
   main.page-content > div.wrapper {
     margin: 0;
@@ -25,6 +29,7 @@ layout: base
     {% include toolkit/sidebar.html %}
   </div>
 
+<<<<<<< HEAD
   <main class="flex-1 p-8">
     <div class="mb-8 text-center">
       <h1 class="text-3xl font-bold">{{ page.title }}</h1>
@@ -41,5 +46,9 @@ layout: base
       {{ page.pagination }}
     </div>
     {% endif %}
+=======
+  <main class="flex-1 p-8 overflow-auto">
+    {{ content }}
+>>>>>>> a9910d61 (comment out the overflow hidden)
   </main>
 </div>
