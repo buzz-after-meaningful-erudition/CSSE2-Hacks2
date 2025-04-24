@@ -14,31 +14,28 @@
     {% endfor %}
   },
   toggleMenu(menuId) {
-    console.log('Toggling menu:', menuId, 'Current state:', this.openMenus[menuId]);
     this.openMenus[menuId] = !this.openMenus[menuId];
-    console.log('New state:', this.openMenus[menuId]);
     if (this.openMenus[menuId]) {
       window.location.hash = 'menu-' + menuId;
-      console.log('Hash set to:', window.location.hash);
     } else {
       if (window.location.hash === '#menu-' + menuId) {
         history.replaceState(null, document.title, window.location.pathname + window.location.search);
-        console.log('Hash removed');
       }
     }
   }
 }" x-init="initializeMenus()">
+
   <div>
     <a href="{{ site.baseurl }}/student" class="block mb-4 text-blue-400 hover:underline">
       &larr; Back to main menu
     </a>
     <h3 class="text-lg font-semibold mb-4 text-white">Student Toolkit</h3>
 
-    <nav class="space-y-2">
+    <nav class="space-y-1"> <!-- Default spacing between items -->
       {% for link in site.data.toolkit.links %}
         <div>
           <div
-            class="flex items-center justify-between ml-4 pl-2 border-l-2 cursor-pointer
+            class="flex items-center justify-between ml-4 pl-2 py-2 border-l-2 cursor-pointer
               {% if page.active_tab == link.id %}
                 border-blue-400 text-white font-semibold
               {% else %}
@@ -62,13 +59,13 @@
           </div>
 
           {% if link.submenu %}
-            <div class="ml-8 mt-1 space-y-1 text-sm text-gray-300 pl-4"
+            <div class="ml-8 mt-1 space-y-1 text-sm pl-4"
                  x-show="openMenus['{{ link.id }}']"
                  x-transition
                  x-cloak>
               {% for sublink in link.submenu %}
                 <a href="{{ site.baseurl }}/{{ sublink.href }}"
-                   class="block hover:text-white {% if page.active_tab == sublink.id %} text-white font-semibold {% endif %}">
+                   class="block hover:text-green-600 {% if page.active_tab == sublink.id %} text-green-600 font-semibold {% else %} text-green-400 {% endif %}">
                   {{ sublink.label }}
                 </a>
               {% endfor %}
@@ -94,15 +91,19 @@
     {% endfor %}
   {% endif %}
 
-  <div class="w-24 h-24 mt-4 self-center">
-    {% if active and active.icon %}
-      <img src="{{ site.baseurl }}/{{ active.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
-    {% elsif active_parent and active_parent.icon %}
-      <img src="{{ site.baseurl }}/{{ active_parent.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
-    {% else %}
-      <div class="w-full h-full bg-gray-500 flex items-center justify-center rounded-md text-sm text-black">
-        No Icon
-      </div>
-    {% endif %}
-  </div>
+  <!-- Icon with full width and centered -->
+  <!-- Icon with larger square size and centered -->
+<div class="w-full h-48 mt-60 flex items-center justify-center px-4">
+  {% if active and active.icon %}
+    <img src="{{ site.baseurl }}/{{ active.icon }}" alt="Sidebar Icon" class="w-48 h-48 object-contain rounded-md" />
+  {% elsif active_parent and active_parent.icon %}
+    <img src="{{ site.baseurl }}/{{ active_parent.icon }}" alt="Sidebar Icon" class="w-48 h-48 object-contain rounded-md" />
+  {% else %}
+    <div class="w-48 h-48 bg-gray-500 flex items-center justify-center rounded-md text-sm text-black">
+      No Icon
+    </div>
+  {% endif %}
+</div>
+
+  
 </aside>
