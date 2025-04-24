@@ -5,7 +5,7 @@ links:
     icon: images/toolkit-nav-buttons/submissions.png
 
   - id: bathroom
-    href: bathroom
+    href: hallpass
     label: Bathroom System
     icon: images/toolkit-nav-buttons/bathroom.png
 
