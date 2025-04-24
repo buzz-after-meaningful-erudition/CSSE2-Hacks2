@@ -1,6 +1,19 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
-<aside class="text-white" x-data="{ openMenus: {} }">
+<aside class="text-white" x-data="{ 
+  openMenus: {},
+  initializeMenus() {
+    {% for link in site.data.toolkit.links %}
+      {% if link.submenu %}
+        {% for sublink in link.submenu %}
+          {% if page.active_tab == sublink.id %}
+            this.openMenus['{{ link.id }}'] = true;
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  }
+}" x-init="initializeMenus()">
   <div>
     <a href="{{ site.baseurl }}/student" class="block mb-4 text-[#4ea1f3] hover:underline">
       &larr; Back to main menu
@@ -52,11 +65,26 @@
     </nav>
   </div>
 
+  {% assign active_parent = nil %}
   {% assign active = site.data.toolkit.links | where: "id", page.active_tab | first %}
+  
+  {% if active == nil %}
+    {% for link in site.data.toolkit.links %}
+      {% if link.submenu %}
+        {% for sublink in link.submenu %}
+          {% if page.active_tab == sublink.id %}
+            {% assign active_parent = link %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 
   <div class="w-24 h-24 mt-4 self-center">
     {% if active and active.icon %}
       <img src="{{ site.baseurl }}/{{ active.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
+    {% elsif active_parent and active_parent.icon %}
+      <img src="{{ site.baseurl }}/{{ active_parent.icon }}" alt="Sidebar Icon" class="object-contain rounded-md" />
     {% else %}
       <div class="w-full h-full bg-gray-500 flex items-center justify-center rounded-md text-sm text-black">
         No Icon

@@ -6,18 +6,12 @@ permalink: /student/TeamTeachToolkit/signup
 description: Sign up for team teach topics
 ---
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Team Teach Toolkit Signup</title>
 
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-  }
-</style>
 
 <div class="team-teach-section">
   <div class="max-w-5xl mx-auto text-white bg-gray-900 py-10 px-4">

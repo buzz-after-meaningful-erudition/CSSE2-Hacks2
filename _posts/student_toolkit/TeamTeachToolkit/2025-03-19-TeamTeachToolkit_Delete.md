@@ -9,11 +9,7 @@ description: Sign up for team teach topics
 <!-- Load Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-  }
-</style>
+
 
 <div class="team-teach-section">
   <div class="container mx-auto text-center text-white bg-gray-900 py-8 px-4">

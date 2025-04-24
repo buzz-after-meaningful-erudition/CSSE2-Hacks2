@@ -28,10 +28,18 @@ layout: base
   <main class="flex-1 p-8">
     <div class="mb-8 text-center">
       <h1 class="text-3xl font-bold">{{ page.title }}</h1>
+      {% if page.subtitle %}
+      <p class="text-gray-600">{{ page.subtitle }}</p>
+      {% endif %}
     </div>
-    
-    <div>
-      {{ content }}
+
+    <div class="overflow-auto"> {{ content }}
     </div>
+
+    {% if page.pagination %}
+    <div class="mt-8 flex justify-center">
+      {{ page.pagination }}
+    </div>
+    {% endif %}
   </main>
 </div>
