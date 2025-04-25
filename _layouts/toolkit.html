@@ -22,14 +22,63 @@ layout: base
     margin: 0;
     padding: 0;
   }
+
+  [x-cloak] {
+    /* basically it just hides the elmenet until alpine loads bc alpine does the showing/hiding logic */
+    display: none !important;
+  }
+
 </style>
 
-<div class="flex">
-  <div class="w-64 bg-gray-800 min-h-screen p-6">
+
+<!-- the alpine x-data and :class stuff is a little goofy but it just makes it easier for 
+me to easily change things based on just the state of the sidebarOpen variable -->
+<div x-data="{ sidebarOpen: false }" class="flex relative min-h-screen">
+  <!-- hamburger/x button for mobile so it isn't cluttered -->
+  <button
+    @click.stop="sidebarOpen = !sidebarOpen"
+    :class="{
+      'left-64': sidebarOpen,
+      'left-4': !sidebarOpen
+    }"
+    class="sm:hidden fixed top-1/2 transform -translate-y-1/2 z-50 bg-gray-800 text-white p-2 rounded shadow-md transition-all duration-300"
+  >
+    <svg x-show="!sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor" x-cloak>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+
+    <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor" x-cloak>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+
+
+  <!-- this is the black overlay on mobile when the sidebar is open -->
+  <div
+    :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
+    class="fixed sm:static inset-y-0 left-0 w-64 bg-gray-800 text-white transform sm:translate-x-0 transition-transform duration-300 z-40 p-6"
+    @click.outside="sidebarOpen = false"
+  >
     {% include toolkit/sidebar.html %}
   </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  <div
+    x-show="sidebarOpen"
+    x-transition
+    @click="sidebarOpen = false"
+    class="fixed inset-0 bg-black bg-opacity-50 z-30 sm:hidden"
+    x-cloak
+  ></div>
+
+
+>>>>>>> b770228a (sidebar completed mostly)
   <main class="flex-1 p-8">
     <div class="mb-8 text-center">
       <h1 class="text-3xl font-bold">{{ page.title }}</h1>
@@ -52,3 +101,5 @@ layout: base
 >>>>>>> a9910d61 (comment out the overflow hidden)
   </main>
 </div>
+
+<script src="//unpkg.com/alpinejs" defer></script>

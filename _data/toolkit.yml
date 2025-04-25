@@ -36,7 +36,7 @@ links:
     label: Grade Viewer
     icon: images/toolkit-nav-buttons/view-grades.png
 
-  - id: Team Teach Toolkit
+  - id: teachteach
     href: student/TeamTeachToolkit/signup
-    label: TeamTeach Toolkit
+    label: Team Teach Toolkit
     icon: images/toolkit-nav-buttons/sagai.png

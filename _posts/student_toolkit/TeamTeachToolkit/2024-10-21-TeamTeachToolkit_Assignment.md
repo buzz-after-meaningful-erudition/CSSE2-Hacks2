@@ -1,6 +1,6 @@
 ---
 layout: toolkit
-active_tab: sagai
+active_tab: teamteach
 title: Assignment Management
 description: Assignment management system
 permalink: /student/SAGAI/assignment-manager

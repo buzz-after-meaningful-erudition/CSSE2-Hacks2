@@ -1,6 +1,7 @@
 ---
 toc: false
 layout: toolkit
+active_tab: teamteach
 title: Sign Up Page
 permalink: /student/TeamTeachToolkit/signup
 description: Sign up for team teach topics
