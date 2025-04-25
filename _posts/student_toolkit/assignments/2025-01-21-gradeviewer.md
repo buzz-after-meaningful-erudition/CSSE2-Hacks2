@@ -6,16 +6,23 @@ permalink: /student/grades
 ---
 
 
-<table id="gradesTable" class="styled-table">
-    <thead>
-        <tr>
-            <th>Assignment</th>
-            <th>Grade</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<div class="container">
+    <h2 class="queue-info">Your Grades</h2>
+    <div class="queue-list">
+        <table id="gradesTable" class="styled-table">
+            <thead>
+                <tr>
+                    <th>Assignment</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Grade rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
 <script type="module">
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
