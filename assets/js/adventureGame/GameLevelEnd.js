@@ -4,6 +4,7 @@ import Player from './GameEngine/Player.js';
 import Npc from './GameEngine/Npc.js';
 import Collectible from './GameEngine/Collectible.js';
 import Quiz from './Quiz.js';
+import EnemyPatrol from './GameEngine/EnemyPatrol.js';
 
 
 class GameLevelEnd {
@@ -148,6 +149,40 @@ class GameLevelEnd {
           }
         }
     };
+    const sprite_src_enderman = path + "/images/gamify/dnhs.png"; // You'll need this image
+    const sprite_data_enderman = {
+      id: 'Enderman',
+      greeting: "*teleports behind you* Nothing personal...",
+      src: sprite_src_enderman,
+      SCALE_FACTOR: 6,
+      ANIMATION_RATE: 40,
+      pixels: {height: 465, width: 537}, // Adjust based on your sprite sheet
+      INIT_POSITION: { x: width * 0.5, y: height * 0.5 },
+      orientation: {rows: 1, columns: 1 },
+      down: {row: 0, start: 0, columns: 0 },
+      // orientation: {rows: 4, columns: 4 },
+      // down: {row: 0, start: 0, columns: 4 },
+      // left: {row: 1, start: 0, columns: 4 },
+      // right: {row: 2, start: 0, columns: 4 },
+      // up: {row: 3, start: 0, columns: 4 },
+      // attack: {row: 0, start: 0, columns: 4 }, // Optional attack animation
+      // hitbox: { widthPercentage: 0.25, heightPercentage: 0.2 },
+      // Custom patrol properties
+      patrolSpeed: 2.5,
+      patrolPattern: 'diagonal', // Set to diagonal movement
+      initialDirection: 'downRight',
+      // Enable teleportation
+      canTeleport: true,
+      teleportCooldown: 7000, // 7 seconds between possible teleports
+      particleColor: '#8066cc', // Purple particles for Enderman
+      // Define patrol boundaries as percentage of canvas (0-1)
+      boundaries: {
+        left: 0.2,   // 20% from left of canvas
+        right: 0.8,  // 80% from left of canvas
+        top: 0.2,    // 20% from top of canvas
+        bottom: 0.8  // 80% from top of canvas
+      }
+    };
     
     this.classes = [
       { class: BackgroundParallax, data: image_data_parallax },  // Add parallax background first
@@ -155,6 +190,7 @@ class GameLevelEnd {
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux },
       { class: Collectible, data: sprite_data_eye },
+      { class: EnemyPatrol, data: sprite_data_enderman },
       { class: Player, data: sprite_data_alex }
     ];
   }
