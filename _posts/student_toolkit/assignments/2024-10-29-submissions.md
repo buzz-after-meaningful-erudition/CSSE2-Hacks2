@@ -5,85 +5,112 @@ active_tab: submissions
 permalink: /student/submissions
 ---
 
-<div>
-    <label>
-        <input type="checkbox" id="myToggle">
-        <span>Enable group submissions</span>
-    </label>
-</div>
-
-<div id="modal">
-    <div>
-        <h2>Submit here</h2>
-        <select id="assignment-select">
-            <option value="" disabled selected>Select a Assignment</option>
-        </select>
-    </div>
-    <div id="Assignment-Content">Assignment-Content</div>
-    <div id="timer-container">
-        <p id="time-left"></p>
-    </div>
-    <br><br>
-    <div id="Group Submit">
-        <div>
-            <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()">
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-transparent rounded-lg shadow-lg p-6 mb-6">
+        <h1 class="text-3xl font-bold text-indigo-700 mb-6 border-b pb-2">Assignment Submissions</h1>
+        
+        <div class="mb-4">
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="myToggle" class="sr-only peer">
+                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <span class="ml-3 text-sm font-medium text-gray-700">Enable group submissions</span>
+            </label>
         </div>
-        <div>
-            <label for="rowsPerPage">Rows per page: </label>
-            <select id="rowsPerPage" onchange="changeRowsPerPage()">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-                <option value="1000">1000</option>
-                <option value="1000">2000</option>
-            </select>
+
+        <div class="space-y-4">
+            <div>
+                <select id="assignment-select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="" disabled selected>Select an Assignment</option>
+                </select>
+            </div>
+            
+            <div id="Assignment-Content" class="p-4 bg-opacity-75 bg-blue-50 rounded-md mb-4 border-l-4 border-indigo-500 text-gray-700">
+                Assignment-Content
+            </div>
+            
+            <div id="timer-container" class="p-3 rounded-md border">
+                <p id="time-left" class="font-bold">Select assignment to view time left here</p>
+            </div>
+
+            <div id="Group Submit" class="hidden space-y-4 mt-6 p-4 rounded-md border border-green-300">
+            <div>
+                <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()" 
+                    class="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            
+            <div class="flex items-center">
+                <label for="rowsPerPage" class="text-sm font-medium text-gray-700 mr-2">Rows per page: </label>
+                <select id="rowsPerPage" onchange="changeRowsPerPage()" 
+                        class="px-2 py-1 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="1000">1000</option>
+                    <option value="2000">2000</option>
+                </select>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white bg-opacity-50 rounded-lg overflow-hidden">
+                    <thead class="bg-green-100 bg-opacity-75">
+                        <tr>
+                            <th class="py-2 px-4 text-left text-green-700">Name</th>
+                            <th class="py-2 px-4 text-left text-green-700">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="namesTableBody" class="divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+            
+            <div id="Review-Group" class="p-3 rounded-md font-medium text-green-700 border border-green-300">
+                Group Members: 
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="namesTableBody"></tbody>
-        </table>
-        <div id="Review-Group">Group Members: </div>
-        <br><br><br>
-    </div>
-    <div>
-        <label for="submissionContent">Submission Content:</label>
-        <textarea id="submissionContent" rows="5" required></textarea>
-    </div>
-    <br><br>
-    <div>
-        <label for="comments">Comments:</label>
-        <textarea id="comments" rows="5"></textarea>
-    </div>
-    <br><br>
+            
+            <div class="mt-4">
+                <label for="submissionContent" class="block text-sm font-medium text-gray-700 mb-1">Submission Content:</label>
+                <textarea id="submissionContent" rows="5" required 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+            
+            <div class="mt-4">
+                <label for="comments" class="block text-sm font-medium text-gray-700 mb-1">Comments:</label>
+                <textarea id="comments" rows="5" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
 
-    <button id="submit-assignment">Submit Assignment</button>
-    <br><br>
-    <div id="outputBox"></div>
-    <br><br>
+            <div class="mt-6">
+                <button id="submit-assignment" class="w-full md:w-auto px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                    Submit Assignment
+                </button>
+            </div>
+            
+            <div id="outputBox" class="mt-4 p-3 rounded-md"></div>
 
-    <h1>Previous Submissions for: </h1>
-    <div id="Assignment-name">Assignment-Content</div>
-    <br><br>
-    <table id="submissions-table">
-        <thead>
-            <tr>
-                <th>Submisssion Content</th>
-                <th>Grade</th>
-                <th>Feedback</th>
-            </tr>
-        </thead>
-        <tbody id="submissions-tbody">
-            <!-- Submissions will be populated here -->
-        </tbody>
-    </table>
+            <div class="mt-8">
+                <h1 class="text-2xl font-bold text-indigo-700 mb-2">Previous Submissions for: </h1>
+                <div id="Assignment-name" class="text-lg font-medium text-gray-700 mb-4">Assignment-Content</div>
+                
+                <div class="overflow-x-auto">
+                    <table id="submissions-table" class="min-w-full bg-white bg-opacity-50 rounded-lg overflow-hidden">
+                        <thead class="bg-indigo-100 bg-opacity-75">
+                            <tr>
+                                <th class="py-2 px-4 text-left text-gray-700">Submission Content</th>
+                                <th class="py-2 px-4 text-left text-gray-700">Grade</th>
+                                <th class="py-2 px-4 text-left text-gray-700">Feedback</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissions-tbody" class="divide-y divide-gray-200">
+                            <!-- Submissions will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -158,10 +185,12 @@ permalink: /student/submissions
                 const outputBox = document.getElementById('outputBox');
                 if (response.ok) {
                     outputBox.innerText = 'Successful Submission! ';
+                    outputBox.className = 'mt-4 p-3 rounded-md bg-green-100 text-green-800 border border-green-200';
                     fetchSubmissions();
                     return response.json();
                 } else {
                     outputBox.innerText = 'Failed Submission! ';
+                    outputBox.className = 'mt-4 p-3 rounded-md bg-red-100 text-red-800 border border-red-200';
                     throw new Error('Failed to submit data: ' + response.statusText);
                 }
 
@@ -236,27 +265,24 @@ permalink: /student/submissions
         if (days > 3) {
             message = `Time Left: ${days}d ${hours}h ${minutes}m`;
             color = 'green';
+            timeLeftElement.className = 'font-medium text-green-600';
         } else if (days <= 3 && days > 0) {
             message = `Time Left: ${days}d ${hours}h ${minutes}m (Hurry up!)`;
             color = 'orange';
+            timeLeftElement.className = 'font-medium text-orange-600';
         } else if (days <= 0 && (hours > 0 || minutes > 0)) {
             message = `Time Left: ${hours}h ${minutes}m (Almost due!)`;
             color = 'red';
+            timeLeftElement.className = 'font-medium text-red-600 animate-pulse';
             shouldShake = true;
         } else {
             message = 'Deadline Passed';
             color = 'red';
+            timeLeftElement.className = 'font-medium text-red-600 animate-pulse';
             shouldShake = true;
         }
 
         timeLeftElement.textContent = message;
-        timeLeftElement.style.color = color;
-
-        if (shouldShake) {
-            timeLeftElement.classList.add('shake');
-        } else {
-            timeLeftElement.classList.remove('shake');
-        }
     }
 
     async function getUserId() {
@@ -301,26 +327,34 @@ permalink: /student/submissions
 
     function populateSubmissionsTable(submissionsJson) {
         const submissions = JSON.parse(submissionsJson);
-        // Fix: Use getElementById instead of getElementsByTagName
         const tableBody = document.getElementById('submissions-tbody');
         tableBody.innerHTML = '';
 
         submissions.forEach(submission => {
             const row = document.createElement('tr');
+            row.className = "hover:bg-indigo-50";
             console.log(submission.assignment?.id + " " + assignIndex + "$$$$$");
             if (submission.assignment?.id == assignIndex) {
                 console.log("SKIBBBB");
                 const contentCell = document.createElement('td');
                 contentCell.textContent = submission.content || 'N/A';
+                contentCell.className = 'py-2 px-4 text-gray-700';
                 row.appendChild(contentCell);
 
                 const gradeCell = document.createElement('td');
                 gradeCell.textContent = submission.grade || 'Ungraded';
+                gradeCell.className = 'py-2 px-4 font-medium';
+                if (submission.grade) {
+                    gradeCell.classList.add('text-green-600');
+                } else {
+                    gradeCell.classList.add('text-gray-500');
+                }
                 row.appendChild(gradeCell);
                 console.log(submission.grade);
 
                 const feedbackCell = document.createElement('td');
                 feedbackCell.textContent = submission.feedback || 'No feedback yet';
+                feedbackCell.className = 'py-2 px-4 italic text-gray-600';
                 row.appendChild(feedbackCell);
 
                 tableBody.appendChild(row);
@@ -384,9 +418,25 @@ permalink: /student/submissions
         tableBody.innerHTML = "";
         names.forEach(name => {
             const row = document.createElement("tr");
+            row.className = "hover:bg-indigo-50";
             let info = [name.name, name.id];
 
-            row.innerHTML = `<td>${name.name}</td><td><button onclick="addName('${info}')">Add</button></td>`;
+            const nameCell = document.createElement("td");
+            nameCell.className = "py-2 px-4 text-gray-700";
+            nameCell.textContent = name.name;
+            row.appendChild(nameCell);
+
+            const actionCell = document.createElement("td");
+            actionCell.className = "py-2 px-4";
+            
+            const addButton = document.createElement("button");
+            addButton.className = "px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+            addButton.textContent = "Add";
+            addButton.onclick = function() { addName(`${name.name},${name.id}`); };
+            
+            actionCell.appendChild(addButton);
+            row.appendChild(actionCell);
+            
             tableBody.appendChild(row);
         });
         updatePageInfo();
