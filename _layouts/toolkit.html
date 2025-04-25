@@ -1,14 +1,18 @@
---- 
-layout: base 
----  
+---
+layout: base
+---
 
-<script src="https://cdn.tailwindcss.com"></script>  
+<script src="https://cdn.tailwindcss.com"></script>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 760b5bbc (perfected the sidebar sizing)
 <style>
   body {
     margin: 0;
     padding: 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     /* overflow: hidden; */
@@ -40,42 +44,38 @@ layout: base
       padding: 1rem !important;
     }
 >>>>>>> e01d4866 (changing ts)
+=======
+>>>>>>> 760b5bbc (perfected the sidebar sizing)
   }
-  
-  @media (min-width: 1280px) {
-    .content-container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+  main.page-content > div.wrapper {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
   }
-</style>   
+  main.page-content {
+    margin: 0;
+    padding: 0;
+  }
 
-<!-- Alpine.js powered responsive layout -->
-<div x-data="{ sidebarOpen: false }" class="flex relative min-h-screen">   
-  <!-- Hamburger/X button - improved positioning for different devices -->   
-  <button     
-    @click.stop="sidebarOpen = !sidebarOpen"     
-    :class="{       
-      'left-64': sidebarOpen,       
-      'left-4': !sidebarOpen     
-    }"     
-    class="sm:hidden fixed top-4 z-50 bg-gray-800 text-white p-2 rounded-lg shadow-lg transition-all duration-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"   
-  >     
-    <svg x-show="!sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"         
-      viewBox="0 0 24 24" stroke="currentColor" x-cloak>       
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>     
-    </svg>      
-    
-    <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"         
-      viewBox="0 0 24 24" stroke="currentColor" x-cloak>       
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>     
-    </svg>   
-  </button>     
-  
-  <!-- Responsive sidebar with improved transitions -->   
-  <div     
+  [x-cloak] {
+    /* basically it just hides the elmenet until alpine loads bc alpine does the showing/hiding logic */
+    display: none !important;
+  }
+
+</style>
+
+
+<!-- the alpine x-data and :class stuff is a little goofy but it just makes it easier for 
+me to easily change things based on just the state of the sidebarOpen variable -->
+<div x-data="{ sidebarOpen: false }" class="flex relative min-h-screen">
+  <!-- hamburger/x button for mobile so it isn't cluttered -->
+  <button
+    @click.stop="sidebarOpen = !sidebarOpen"
     :class="{
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 760b5bbc (perfected the sidebar sizing)
       'left-64': sidebarOpen,
       'left-4': !sidebarOpen
     }"
@@ -86,6 +86,7 @@ layout: base
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M4 6h16M4 12h16M4 18h16"/>
     </svg>
+<<<<<<< HEAD
 
     <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
         viewBox="0 0 24 24" stroke="currentColor" x-cloak>
@@ -173,6 +174,44 @@ layout: base
 </div>  
 
 <<<<<<< HEAD
+=======
+
+    <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor" x-cloak>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+
+
+  <div
+    :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
+    class="fixed sm:static inset-y-0 left-0 w-full md:w-64 max-w-[90vw] sm:max-w-[33.3106771vw] bg-gray-800 text-white transform sm:translate-x-0 transition-all duration-300 z-50 p-6"
+    @click.outside="sidebarOpen = false"
+    >
+    {% include toolkit/sidebar.html %}
+  </div>
+
+
+  <!-- this is the black overlay on mobile when the sidebar is open -->
+  <div
+    x-show="sidebarOpen"
+    x-transition
+    @click="sidebarOpen = false"
+    class="fixed inset-0 bg-black bg-opacity-50 z-30 sm:hidden"
+    x-cloak
+  ></div>
+
+
+  <main class="flex-1 p-8">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold">{{ page.title }}</h1>
+      {% if page.subtitle %}
+      <p class="text-gray-600">{{ page.subtitle }}</p>
+      {% endif %}
+    </div>
+
+>>>>>>> 760b5bbc (perfected the sidebar sizing)
     <div class="overflow-auto"> {{ content }}
     </div>
 
@@ -181,14 +220,20 @@ layout: base
       {{ page.pagination }}
     </div>
     {% endif %}
+<<<<<<< HEAD
 =======
   <main class="flex-1 p-8 overflow-auto">
     {{ content }}
 >>>>>>> a9910d61 (comment out the overflow hidden)
+=======
+>>>>>>> 760b5bbc (perfected the sidebar sizing)
   </main>
 </div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
+<<<<<<< HEAD
 =======
 <script src="//unpkg.com/alpinejs" defer></script>
 >>>>>>> e01d4866 (changing ts)
+=======
+>>>>>>> 760b5bbc (perfected the sidebar sizing)
