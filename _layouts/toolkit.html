@@ -185,10 +185,15 @@ me to easily change things based on just the state of the sidebarOpen variable -
 
 
   <div
-    :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
-    class="fixed sm:static inset-y-0 left-0 w-full md:w-64 max-w-[90vw] sm:max-w-[33.3106771vw] bg-gray-800 text-white transform sm:translate-x-0 transition-all duration-300 z-50 p-6"
+    :class="{
+      'translate-x-0': sidebarOpen,
+      '-translate-x-full': !sidebarOpen,
+      'w-64': sidebarOpen,
+      'w-0': !sidebarOpen
+    }"
+    class="fixed sm:static inset-y-0 left-0 sm:w-[33.3106771vw] md:w-64 max-w-[90vw] bg-gray-800 text-white transform sm:translate-x-0 transition-all duration-300 z-50 p-6 overflow-hidden"
     @click.outside="sidebarOpen = false"
-    >
+  >
     {% include toolkit/sidebar.html %}
   </div>
 
