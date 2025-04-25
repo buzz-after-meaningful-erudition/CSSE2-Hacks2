@@ -53,3 +53,35 @@ Topics:
       - <a href = "https://nighthawkcoders.github.io/portfolio_2025/student/TeamTeachToolkit/signup" target = "_blank">Team Teach Management</a>
     subtitle: "Student Lesson Sign-ups"
     description: "This assignments sub-feature helps students sign-up for student lessons called 'team teaches'. These team teaches are registered in the assignments page."
+  - title: "Fortune Finders"
+    image: "/docs/fortuneFinders.png"
+    link: "/docs/fortuneFinders"
+    alt: "Fortune Finders"
+    keyPoints:
+      - <a href = "https://nighthawkcoders.github.io/portfolio_2025/gamify/fortuneFinders" target = "_blank">Fortune Finders</a>
+    subtitle: "An Adventure"
+    description: "Fortune Finders is an exploration game where players start as a relaxed individual, learning about the stock market and gaining balance by interacting with NPCs, companies, and computers."
+  - title: "Stocks"
+    image: "/docs/stocks.png"
+    link: "/docs/stocks"
+    alt: "Stocks"
+    keyPoints:
+      - <a href = "https://nighthawkcoders.github.io/portfolio_2025/stocks/home" target = "_blank">Stocks</a>
+    subtitle: "Stocks"
+    description: "The Stocks Game is a fun way to learn about investing in the stock market! You can buy and sell stocks, track your portfolio, and see how your investments perform over time - all in a safe, virtual environment."
+  - title: "Stocks Game"
+    image: "/docs/stocksGame.png"
+    link: "/docs/stocksGame"
+    alt: "Stocks Game"
+    keyPoints:
+      - <a href = "https://nighthawkcoders.github.io/portfolio_2025/stocks/home" target = "_blank">Stocks Game</a>
+    subtitle: "5-Year Stocks Game"
+    description: "This is a fun game where you get to pretend you’re investing in the stock market! You’ll start with $10,000 and pick stocks you think will do well. The game will show you how your picks would have performed over the last 5 years - just like if you had really invested that money!"
+  - title: "Casino"
+    image: "/docs/casino.png"
+    link: "/docs/casino"
+    alt: "Casino"
+    keyPoints:
+      - <a href = "https://nighthawkcoders.github.io/portfolio_2025/gamify/dices" target = "_blank">Casino</a>
+    subtitle: "Casino Games"
+    description: "A simple and fun betting game where your winnings depend on the risk you take!"
