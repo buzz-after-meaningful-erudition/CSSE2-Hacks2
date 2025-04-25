@@ -121,6 +121,36 @@ class GameLevelEnd {
         }
     };
 
+    const sprite_src_g = path + "/images/gamify/GDOS logo upscaled and colorized.webp";
+    const sprite_greet_g = "Be nice to Tux. He's going through a lot.";
+    const sprite_data_g = {
+        id: 'g',
+        greeting: sprite_greet_g,
+        src: sprite_src_g,
+        SCALE_FACTOR: 16,
+        ANIMATION_RATE: 9999999999999,
+        pixels: {height: 602, width: 415},
+        INIT_POSITION: { x: (width / 8.4), y: (height / 6.7) },
+        orientation: {rows: 1, columns: 1 },
+        down: {row: 0, start: 0, columns: 0 },
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+        zIndex: 10,  // Same z-index as player
+        quiz: {
+          title: "diarrhea",
+          questions: [
+            "i need 2 dollor"
+          ]
+        },
+        reaction: function() {
+          alert(sprite_greet_g);
+        },
+        interact: function() {
+          let quiz = new Quiz();
+          quiz.initialize();
+          quiz.openPanel(sprite_data_g);
+        }
+    };
+
     const sprite_src_eye = path + "/images/gamify/eyeOfEnder.png";
     const sprite_data_eye = {
         id: 'Eye of Ender',
@@ -154,6 +184,7 @@ class GameLevelEnd {
       { class: GamEnvBackground, data: image_data_end },         // Then regular background
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux },
+      { class: Npc, data: sprite_data_g },
       { class: Collectible, data: sprite_data_eye },
       { class: Player, data: sprite_data_alex }
     ];
