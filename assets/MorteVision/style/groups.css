@@ -56,8 +56,11 @@ label {
     font-weight: bold;
 }
 
-input, select {
+input:not(input[type="checkbox"]), select {
     width: 100%;
+}
+
+input, select {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;

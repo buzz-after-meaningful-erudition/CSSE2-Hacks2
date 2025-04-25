@@ -147,9 +147,9 @@ function renderPeopleList() {
 
     personList.innerHTML = allPeople.map(person => `
         <div class="person-item">
-            <div>
+            <div class="flex items-center gap-2">
                 <input type="checkbox" class="person-checkbox" id="person-${person.id}" 
-                        data-id="${person.id}" data-uid="${person.uid}" data-name="${person.name}">
+                    data-id="${person.id}" data-uid="${person.uid}" data-name="${person.name}">
                 <label for="person-${person.id}">${person.name} (${person.email})</label>
             </div>
         </div>
