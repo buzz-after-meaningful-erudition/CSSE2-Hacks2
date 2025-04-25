@@ -12,6 +12,7 @@ permalink: /student/seedtracker
 <div class="container mx-auto px-4 py-8 max-w-3xl">
     <div class="bg-transparent rounded-lg shadow-lg p-6 mb-6">
         <h1 class="text-3xl font-bold text-indigo-700 mb-6 border-b pb-2">Weekly Project Submission</h1>
+        
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -67,7 +68,7 @@ permalink: /student/seedtracker
 
 <!-- Modals -->
 <div id="seedStarterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-transparent rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
         <div class="flex justify-between items-center bg-indigo-600 text-white px-6 py-3">
             <h3 class="text-lg font-medium">Seed Starter</h3>
             <button class="text-white text-xl hover:text-gray-200" onclick="closeModal('seedStarterModal')">&times;</button>
@@ -97,7 +98,7 @@ permalink: /student/seedtracker
 </div>
 
 <div id="classroomConductModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-transparent rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
         <div class="flex justify-between items-center bg-indigo-600 text-white px-6 py-3">
             <h3 class="text-lg font-medium">Classroom Conduct</h3>
             <button class="text-white text-xl hover:text-gray-200" onclick="closeModal('classroomConductModal')">&times;</button>
@@ -127,7 +128,7 @@ permalink: /student/seedtracker
 </div>
 
 <div id="ecEventModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-transparent rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
         <div class="flex justify-between items-center bg-indigo-600 text-white px-6 py-3">
             <h3 class="text-lg font-medium">EC Event</h3>
             <button class="text-white text-xl hover:text-gray-200" onclick="closeModal('ecEventModal')">&times;</button>
@@ -157,7 +158,7 @@ permalink: /student/seedtracker
 </div>
 
 <div id="ecAssignmentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-transparent rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
         <div class="flex justify-between items-center bg-indigo-600 text-white px-6 py-3">
             <h3 class="text-lg font-medium">EC Assignment</h3>
             <button class="text-white text-xl hover:text-gray-200" onclick="closeModal('ecAssignmentModal')">&times;</button>
@@ -187,7 +188,7 @@ permalink: /student/seedtracker
 </div>
 
 <div id="attendanceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-transparent rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden" onclick="event.stopPropagation();">
         <div class="flex justify-between items-center bg-indigo-600 text-white px-6 py-3">
             <h3 class="text-lg font-medium">Attendance</h3>
             <button class="text-white text-xl hover:text-gray-200" onclick="closeModal('attendanceModal')">&times;</button>
