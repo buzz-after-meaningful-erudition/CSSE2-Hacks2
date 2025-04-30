@@ -2,9 +2,9 @@ import GamEnvBackground from './GameEngine/GameEnvBackground.js';
 import BackgroundParallax from './GameEngine/BackgroundParallax.js';
 import Player from './GameEngine/Player.js';
 import Npc from './GameEngine/Npc.js';
-import Collectible from './GameEngine/Collectible.js';
+import Collectible from './Collectible.js';
 import Quiz from './Quiz.js';
-
+import Game from './Game.js';
 
 class GameLevelEnd {
   constructor(gameEnv) {
@@ -134,16 +134,18 @@ class GameLevelEnd {
         down: {row: 0, start: 0, columns: 0 },
         hitbox: { widthPercentage: 0.2, heightPercentage: 0.2 },
         zIndex: 10,  // Same z-index as player
+        value: 100,  // Value of the Eye of Ender collectible (adds 100 to balance)
         reaction: function() {
           alert(`Press E to claim this Eye of Ender.`);
         },
         interact: function() {
-          eyesCollected ++;
+          eyesCollected++;
+          
           if (eyesCollected >= 12) {
-            alert("You have collected all the Eyes of Ender! You can now escape!");
+            alert("You have collected all the Eyes of Ender! You can now escape! You earned a total of 1200 balance points!");
             // Add logic to allow the player to escape
           } else {
-            alert(`You collected an Eye of Ender! You need ${12 - eyesCollected} more to escape.`);
+            alert(`You collected an Eye of Ender and earned 100 balance points! You need ${12 - eyesCollected} more to escape.`);
             this.move((Math.random()*width/2.6)+width/19, (Math.random()*height/3.5)+height/2.7);
           }
         }
