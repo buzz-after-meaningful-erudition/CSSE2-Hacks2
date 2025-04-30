@@ -6,7 +6,6 @@ class Collectible extends Character {
         super(data, gameEnv);
         this.interact = data?.interact; // Interact function
         this.alertTimeout = null;
-        this.value = data?.value || 0; // Value of collectible (for balance)
         this.bindInteractKeyListeners();
     }
 
@@ -42,47 +41,6 @@ class Collectible extends Character {
 
         if (players.length > 0 && hasInteract) {
             this.interact();
-            // If the collectible has a value, update balance
-            if (this.value > 0) {
-                this.updateBalance(this.value);
-            }
-        }
-    }
-    
-    // Add method to update balance
-    updateBalance(amount) {
-        const personId = Game.id;
-        if (!personId) {
-            console.error("Cannot update balance: Person ID not found");
-            return;
-        }
-        
-        // Update balance in UI
-        const balanceElement = document.getElementById('balance');
-        if (balanceElement) {
-            const currentBalance = parseInt(balanceElement.innerHTML) || 0;
-            const newBalance = currentBalance + amount;
-            balanceElement.innerHTML = newBalance;
-            
-            // Store updated balance in localStorage
-            localStorage.setItem('balance', newBalance);
-            
-            // Update balance on server
-            fetch(`${Game.javaURI}/rpg_answer/updateBalance/${personId}/${newBalance}`, Game.fetchOptions)
-                .then(response => {
-                    if (!response.ok) {
-                        console.error("Failed to update balance on server");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Balance updated successfully:", data);
-                })
-                .catch(error => {
-                    console.error("Error updating balance:", error);
-                });
-        } else {
-            console.error("Balance element not found in DOM");
         }
     }
 }
