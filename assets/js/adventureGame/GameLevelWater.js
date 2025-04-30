@@ -1,5 +1,6 @@
 import GameEnvBackground from './GameEngine/GameEnvBackground.js';
 import Npc from './GameEngine/Npc.js';
+import Collectible from './GameEngine/Collectible.js';
 import Player from './GameEngine/Player.js';
 import GameControl from './GameEngine/GameControl.js';
 import GameLevelStarWars from './GameLevelStarWars.js';
@@ -15,6 +16,7 @@ class GameLevelWater {
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
+    let trippisCollected = 0;
 
     // Background data
     const image_src_water = path + "/images/gamify/deepseadungeon.jpeg";
@@ -136,6 +138,34 @@ class GameLevelWater {
         },
       };
 
+      const sprite_src_trip = path + "/images/gamify/640.webp";
+    const sprite_data_trip = {
+        id: 'trip',
+        greeting: `Press E to claim this Trippi Troppi`,
+        src: sprite_src_trip,
+        SCALE_FACTOR: 10,
+        ANIMATION_RATE: 9007199254740991,
+        pixels: {height: 1050, width: 1115},
+        INIT_POSITION: { x: Math.random()*width, y: Math.random()*height },
+        orientation: {rows: 1, columns: 1 },
+        down: {row: 0, start: 0, columns: 0 },
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.1 },
+        zIndex: 10,  // Same z-index as player
+        reaction: function() {
+          alert(`Press E to claim this Trippi Troppi`);
+        },
+        interact: function() {
+          trippisCollected ++;
+          if (trippisCollected >= 12) {
+            alert("You have collected all the Trippi Troppis! You can now escape!");
+            // Add logic to allow the player to escape
+          } else {
+            alert(`You collected a Trippi Troppi! You need ${12 - trippisCollected} more to escape.`);
+            this.move(Math.random()*width, Math.random()*height);
+          }
+        }
+    };
+
       setInterval(() => {
         sprite_data_shark.updatePosition(); 
       }, 100); // update position every 100 milliseconds 
@@ -145,6 +175,7 @@ class GameLevelWater {
       { class: GameEnvBackground, data: image_data_water },
       { class: Player, data: sprite_data_octopus },
       { class: Npc, data: sprite_data_nomad },
+      { class: Collectible, data: sprite_data_trip },
       { class: Shark, data: sprite_data_shark },
     ];
   }
