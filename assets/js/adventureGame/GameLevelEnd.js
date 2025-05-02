@@ -178,6 +178,36 @@ class GameLevelEnd {
           }
         }
     };
+
+    const sprite_src_portal = path + "/images/gamify/GDOS logo upscaled and colorized.webp";
+    const sprite_greet_portal = "Be mean to Tux. Throw him off the island. He isn't actually depressed, he's just being dramatic lol";
+    const sprite_data_portal = {
+        id: 'portal',
+        greeting: sprite_greet_portal,
+        src: sprite_src_portal,
+        SCALE_FACTOR: 16,
+        ANIMATION_RATE: 9999999999999,
+        pixels: {height: 602, width: 415},
+        INIT_POSITION: { x: (width / 8.4), y: (height / 6.7) },
+        orientation: {rows: 1, columns: 1 },
+        down: {row: 0, start: 0, columns: 0 },
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+        zIndex: 10,  // Same z-index as player
+        quiz: {
+          title: "diarrhea",
+          questions: [
+            "i need 2 dollor"
+          ]
+        },
+        reaction: function() {
+          alert(sprite_greet_portal);
+        },
+        interact: function() {
+          let quiz = new Quiz();
+          quiz.initialize();
+          quiz.openPanel(sprite_data_portal);
+        }
+    };
     
     this.classes = [
       { class: BackgroundParallax, data: image_data_parallax },  // Add parallax background first
@@ -185,6 +215,7 @@ class GameLevelEnd {
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux },
       { class: Npc, data: sprite_data_g },
+      { class: Npc, data: sprite_data_portal },
       { class: Collectible, data: sprite_data_eye },
       { class: Player, data: sprite_data_alex }
     ];
