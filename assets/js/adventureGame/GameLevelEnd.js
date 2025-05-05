@@ -171,11 +171,40 @@ class GameLevelEnd {
           eyesCollected ++;
           if (eyesCollected >= 12) {
             alert("You have collected all the Eyes of Ender! You can now escape!");
+            sprite_data_portal.down = {row: 0, start: 1, columns: 0 };
             // Add logic to allow the player to escape
           } else {
             alert(`You collected an Eye of Ender! You need ${12 - eyesCollected} more to escape.`);
             this.move((Math.random()*width/2.6)+width/19, (Math.random()*height/3.5)+height/2.7);
           }
+        }
+    };
+
+    const sprite_src_portal = path + "/images/gamify/endportalexit.png";
+    const sprite_greet_portal = "Be mean to Tux. Throw him off the island. He isn't actually depressed, he's just being dramatic lol";
+    const sprite_data_portal = {
+        id: 'portal',
+        greeting: sprite_greet_portal,
+        src: sprite_src_portal,
+        SCALE_FACTOR: 6,
+        ANIMATION_RATE: 9999999999999,
+        pixels: {height: 56, width: 160},
+        INIT_POSITION: { x: (width / 1.2), y: (height / 2.5) },
+        orientation: {rows: 1, columns: 2 },
+        down: {row: 0, start: 0, columns: 0 },
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+        zIndex: 10,  // Same z-index as player
+        quiz: {
+          title: "diarrhea",
+          questions: [
+            "i need 2 dollor"
+          ]
+        },
+        reaction: function() {
+          alert(sprite_greet_portal);
+        },
+        interact: function() {
+          
         }
     };
     
@@ -185,6 +214,7 @@ class GameLevelEnd {
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux },
       { class: Npc, data: sprite_data_g },
+      { class: Npc, data: sprite_data_portal },
       { class: Collectible, data: sprite_data_eye },
       { class: Player, data: sprite_data_alex }
     ];
