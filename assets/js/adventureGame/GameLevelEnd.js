@@ -150,6 +150,9 @@ class GameLevelEnd {
           // Update the eye counter display
           self.updateEyeCounter();
           
+          // Update player's balance by 100 when collecting an eye
+          self.updatePlayerBalance(100);
+          
           if (self.eyesCollected >= 12) {
             // Record end time when all eyes are collected
             self.endTime = Date.now();
@@ -250,6 +253,116 @@ class GameLevelEnd {
     }
   }
   
+  // New method to update player's balance
+  updatePlayerBalance(amount) {
+    // Get the current balance from UI
+    const balanceElement = document.getElementById('balance');
+    if (!balanceElement) {
+      console.error("Balance element not found");
+      return;
+    }
+    
+    // Parse current balance
+    let currentBalance = parseInt(balanceElement.innerHTML) || 0;
+    
+    // Add amount to balance
+    const newBalance = currentBalance + amount;
+    
+    // Update UI
+    balanceElement.innerHTML = newBalance;
+    
+    // Store in localStorage
+    localStorage.setItem('balance', newBalance);
+    
+    // Visual feedback for balance change
+    balanceElement.style.transform = 'scale(1.5)';
+    balanceElement.style.color = '#00FFFF';
+    setTimeout(() => {
+      balanceElement.style.transform = 'scale(1)';
+      balanceElement.style.color = '#4a86e8';
+    }, 300);
+    
+    // If we have access to the Java API endpoint, update server-side balance
+    if (Game.id && Game.javaURI) {
+      this.updateServerBalance(Game.id, amount);
+    }
+    
+    // Show floating +100 text near the eye
+    this.showFloatingPoints(amount);
+  }
+  
+  // Update balance on server
+  updateServerBalance(personId, amount) {
+    // Check if Game and fetchOptions are available
+    if (!Game.javaURI || !Game.fetchOptions) {
+      console.error("Cannot update server balance - missing Game.javaURI or Game.fetchOptions");
+      return;
+    }
+    
+    // Endpoint for updating balance
+    const endpoint = `${Game.javaURI}/rpg_answer/updateBalance/${personId}/${amount}`;
+    
+    // Send request to update balance
+    fetch(endpoint, Game.fetchOptions)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to update balance: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Balance updated on server:", data);
+      })
+      .catch(error => {
+        console.error("Error updating balance on server:", error);
+      });
+  }
+  
+  // Show floating points animation
+  showFloatingPoints(amount) {
+    // Create floating text element
+    const floatingPoints = document.createElement('div');
+    floatingPoints.textContent = `+${amount}`;
+    floatingPoints.style.position = 'fixed';
+    floatingPoints.style.color = '#4a86e8';
+    floatingPoints.style.fontSize = '24px';
+    floatingPoints.style.fontWeight = 'bold';
+    floatingPoints.style.textShadow = '0 0 10px rgba(74, 134, 232, 0.7)';
+    floatingPoints.style.zIndex = '9999';
+    
+    // Get position of eye counter for reference
+    const eyeCounter = document.getElementById('eye-counter-container');
+    if (eyeCounter) {
+      const rect = eyeCounter.getBoundingClientRect();
+      floatingPoints.style.top = `${rect.top - 30}px`;
+      floatingPoints.style.left = `${rect.left + 20}px`;
+    } else {
+      // Fallback position
+      floatingPoints.style.top = '100px';
+      floatingPoints.style.right = '30px';
+    }
+    
+    // Create animation
+    floatingPoints.style.animation = 'float-up 1.5s ease-out forwards';
+    const style = document.createElement('style');
+    if (!document.getElementById('float-animation')) {
+      style.id = 'float-animation';
+      style.innerHTML = `
+        @keyframes float-up {
+          0% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(-50px); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Add to document and remove after animation
+    document.body.appendChild(floatingPoints);
+    setTimeout(() => {
+      floatingPoints.remove();
+    }, 1500);
+  }
+  
   // Show success screen when all eyes are collected
   showSuccessScreen(timeTaken) {
     // Format time nicely
@@ -338,13 +451,19 @@ class GameLevelEnd {
     `;
     document.head.appendChild(style);
     
+    // Get final balance
+    const finalBalance = document.getElementById('balance')?.innerHTML || '0';
+    
     // Success content
     innerDiv.innerHTML = `
         <div class="trophy">🏆</div>
         <h1 style="font-size: 48px; margin: 0; color: #8A2BE2; font-weight: bold; animation: glow 1.5s infinite alternate, slide-in 0.5s ease-out; font-family: 'Press Start 2P', cursive;">SUCCESS!</h1>
         <p style="font-size: 24px; color: white; margin: 20px 0; animation: slide-in 0.5s ease-out 0.2s both; font-family: 'Press Start 2P', cursive;">All 12 Eyes of Ender collected!</p>
-        <div style="margin: 20px 0; font-size: 36px; color: #00FFFF; animation: slide-in 0.5s ease-out 0.4s both; font-family: 'Press Start 2P', cursive; font-weight: bold;">
-            TIME: ${formattedTime}
+        <div style="margin: 20px 0; font-size: 24px; color: #00FFFF; animation: slide-in 0.5s ease-out 0.4s both; font-family: 'Press Start 2P', cursive;">
+            TIME: <span style="font-weight: bold;">${formattedTime}</span>
+        </div>
+        <div style="margin: 10px 0; font-size: 24px; color: #4a86e8; animation: slide-in 0.5s ease-out 0.5s both; font-family: 'Press Start 2P', cursive;">
+            BALANCE: <span style="font-weight: bold;">${finalBalance}</span>
         </div>
         <button id="restart-button" class="restart-btn" style="animation: slide-in 0.5s ease-out 0.6s both;">
             PLAY AGAIN
@@ -440,6 +559,9 @@ class GameLevelEnd {
     `;
     document.head.appendChild(style);
     
+    // Get final balance
+    const finalBalance = document.getElementById('balance')?.innerHTML || '0';
+    
     // Failure content
     innerDiv.innerHTML = `
         <div class="womp-womp">😢</div>
@@ -447,6 +569,9 @@ class GameLevelEnd {
         <p style="font-size: 24px; color: white; margin: 20px 0; animation: slide-in 0.5s ease-out 0.2s both; font-family: 'Press Start 2P', cursive;">Time's up!</p>
         <div style="margin: 20px 0; font-size: 24px; color: #cccccc; animation: slide-in 0.5s ease-out 0.4s both; font-family: 'Press Start 2P', cursive;">
             Eyes collected: <span style="color: yellow; font-weight: bold;">${this.eyesCollected}/12</span>
+        </div>
+        <div style="margin: 10px 0; font-size: 24px; color: #4a86e8; animation: slide-in 0.5s ease-out 0.5s both; font-family: 'Press Start 2P', cursive;">
+            BALANCE: <span style="font-weight: bold;">${finalBalance}</span>
         </div>
         <button id="restart-button" class="restart-btn" style="animation: slide-in 0.5s ease-out 0.6s both;">
             TRY AGAIN
@@ -489,7 +614,7 @@ class GameLevelEnd {
 
 // Add static method to check if game should end due to time limit
 GameLevelEnd.checkTimeLimit = function(gameLevelInstance) {
-  // If 45 seconds have passed and the game hasn't been completed yet, show failure screen
+  // If 45 seconds have // Add static method to check if game should end due to time limit
   const currentTime = Date.now();
   const elapsedTime = (currentTime - gameLevelInstance.startTime) / 1000;
   
