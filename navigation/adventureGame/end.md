@@ -11,7 +11,7 @@ permalink: /gamify/end
 
 <script type="module">
     // Adnventure Game assets locations
-    import Game from "{{site.baseurl}}/assets/js/adventureGame/Game.js";
+    import GameEnd from "{{site.baseurl}}/assets/js/adventureGame/GameEnd.js";
     import GameLevelEnd from "{{site.baseurl}}/assets/js/adventureGame/GameLevelEnd.js";
     import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
