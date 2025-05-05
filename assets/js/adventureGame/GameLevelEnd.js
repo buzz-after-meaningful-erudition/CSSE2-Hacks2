@@ -203,8 +203,8 @@ class GameLevelEnd {
     counterContainer.style.alignItems = 'center';
     counterContainer.style.fontFamily = "'Minecraft', sans-serif";
     counterContainer.style.zIndex = '1000';
-    counterContainer.style.border = '2px solid #8A2BE2';
-    counterContainer.style.boxShadow = '0 0 10px rgba(138, 43, 226, 0.7)';
+    counterContainer.style.border = '2px solid #4a86e8';
+    counterContainer.style.boxShadow = '0 0 10px rgba(74, 134, 232, 0.7)';
     
     // Load Minecraft-style font
     const fontLink = document.createElement('link');
