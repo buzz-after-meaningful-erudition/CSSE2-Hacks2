@@ -193,7 +193,7 @@ class GameLevelEnd {
     const counterContainer = document.createElement('div');
     counterContainer.id = 'eye-counter-container';
     counterContainer.style.position = 'fixed';
-    counterContainer.style.top = '150px';
+    counterContainer.style.top = '180px'; // Changed from 150px to 180px to position it lower
     counterContainer.style.right = '10px';
     counterContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
     counterContainer.style.color = 'white';
@@ -226,8 +226,8 @@ class GameLevelEnd {
     counterText.id = 'eye-counter';
     counterText.textContent = `0/12`;
     counterText.style.fontSize = '18px';
-    counterText.style.color = '#8A2BE2';
-    counterText.style.textShadow = '0 0 5px rgba(138, 43, 226, 0.7)';
+    counterText.style.color = '#4a86e8'; // Changed from #8A2BE2 to #4a86e8
+    counterText.style.textShadow = '0 0 5px rgba(74, 134, 232, 0.7)'; // Updated shadow to match new color
     
     // Assemble counter
     counterContainer.appendChild(eyeIcon);
@@ -248,7 +248,7 @@ class GameLevelEnd {
       // Reset after animation
       setTimeout(() => {
         counterText.style.transform = 'scale(1)';
-        counterText.style.color = '#8A2BE2';
+        counterText.style.color = '#4a86e8'; // Changed from #8A2BE2 to #4a86e8
       }, 300);
     }
   }
@@ -614,7 +614,6 @@ class GameLevelEnd {
 
 // Add static method to check if game should end due to time limit
 GameLevelEnd.checkTimeLimit = function(gameLevelInstance) {
-  // If 45 seconds have // Add static method to check if game should end due to time limit
   const currentTime = Date.now();
   const elapsedTime = (currentTime - gameLevelInstance.startTime) / 1000;
   
