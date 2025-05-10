@@ -2,242 +2,98 @@ import GameControl from './GameEngine/GameControl.js';
 import Quiz from './Quiz.js';
 import Inventory from "./Inventory.js";
 import { defaultItems } from "./items.js";
-import GameLevelEnd from './GameLevelEnd.js'; // Import GameLevelEnd
+import GameLevelEnd from './GameLevelEnd.js';
 
-class Game {
-    constructor() {
-        // initialize user and launch GameControl 
-        this.main(environment);
-        console.log("Initializing game inventory...");
-        this.inventory = Inventory.getInstance();
-        
-        // Give starting items to the player
-        this.giveStartingItems();
-    }
-
-    // initialize user and launch GameControl 
-    static main(environment) {
-        // setting Web Application path
-        this.environment = environment;
-        this.path = environment.path;
-
-        // setting Element IDs
-        this.gameContainer = environment.gameContainer;
-        this.gameCanvas = environment.gameCanvas;
-
-        // setting API environment variables 
-        this.pythonURI = environment.pythonURI;
-        this.javaURI = environment.javaURI;
-        this.fetchOptions = environment.fetchOptions;
-
-        // prepare user data for scoring and stats 
-        this.uid;
-        this.id;
-        this.initUser();
+class StatsManager {
+    constructor(game) {
+        this.game = game;
         this.initStatsUI();
         this.createStopwatch();
-
-        this.gname = null;
-        
-        // Initialize game timer and level reference
-        this.gameTimer = 0;
-        this.timerInterval = null;
-        this.currentLevelInstance = null;
-
-        // start the game immediately
-        const gameLevelClasses = environment.gameLevelClasses;
-        this.gameControl = new GameControl(this, gameLevelClasses);
-        this.gameControl.start();
-        
-        // Start the stopwatch
-        this.startStopwatch();
     }
 
-    // Set the current level instance for time checks
-    static setCurrentLevelInstance(instance) {
-        this.currentLevelInstance = instance;
-        console.log("Current level instance set:", instance);
-    }
-
-    static initUser() {
-        const pythonURL = this.pythonURI + '/api/id';
-        fetch(pythonURL, this.fetchOptions)
-            .then(response => {
-                if (response.status !== 200) {
-                    console.error("HTTP status code: " + response.status);
-                    return null;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                this.uid = data.uid;
-                console.log("User ID:", this.uid);
-
-                const javaURL = this.javaURI + '/rpg_answer/person/' + this.uid;
-                return fetch(javaURL, this.fetchOptions);
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Spring server response: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                this.id = data.id;
-                this.fetchStats(data.id);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-    }
-
-    static fetchStats(personId) {
+    async fetchStats(personId) {
         const endpoints = {
-            balance: this.javaURI + '/rpg_answer/getBalance/' + personId,
-            questionAccuracy: this.javaURI + '/rpg_answer/getQuestionAccuracy/' + personId
+            balance: this.game.javaURI + '/rpg_answer/getBalance/' + personId,
+            questionAccuracy: this.game.javaURI + '/rpg_answer/getQuestionAccuracy/' + personId
         };
     
         for (let [key, url] of Object.entries(endpoints)) {
-            fetch(url, this.fetchOptions)
-                .then(response => response.json())
-                .then(data => {
-                    if (key === "questionAccuracy") {
-                        const accuracyPercent = Math.round((data ?? 0) * 100);
-                        document.getElementById(key).innerHTML = `${accuracyPercent}%`;
-                        localStorage.setItem(key, `${accuracyPercent}%`);
-                    } else {
-                        document.getElementById(key).innerHTML = data ?? 0;
-                        localStorage.setItem(key, data ?? 0);
-                    }
-                })
-                .catch(err => console.error(`Error fetching ${key}:`, err));
+            try {
+                const response = await fetch(url, this.game.fetchOptions);
+                const data = await response.json();
+                
+                if (key === "questionAccuracy") {
+                    const accuracyPercent = Math.round((data ?? 0) * 100);
+                    document.getElementById(key).innerHTML = `${accuracyPercent}%`;
+                    localStorage.setItem(key, `${accuracyPercent}%`);
+                } else {
+                    document.getElementById(key).innerHTML = data ?? 0;
+                    localStorage.setItem(key, data ?? 0);
+                }
+            } catch (err) {
+                console.error(`Error fetching ${key}:`, err);
+            }
         }
     }
 
-    static async createStats(stats, gname, uid) {
+    async createStats(stats, gname, uid) {
         try {
-            const response = await fetch(`${this.javaURI}/createStats`, {
+            const response = await fetch(`${this.game.javaURI}/createStats`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uid, gname, stats })
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
         } catch (error) {
             console.error("Error creating stats:", error);
             return "Error creating stats";
         }
     }
 
-    static async getStats(uid) {
+    async getStats(uid) {
         try {
-            const response = await fetch(`${this.javaURI}/getStats/${uid}`, {
+            const response = await fetch(`${this.game.javaURI}/getStats/${uid}`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                }
+                headers: { "Content-Type": "application/json" }
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
         } catch (error) {
             console.error("Error fetching stats:", error);
             return "Error fetching stats";
         }
     }
 
-    static async updateStats(stats, gname, uid) {
+    async updateStats(stats, gname, uid) {
         try {
-            const response = await fetch(`${this.javaURI}/updateStats`, {
+            const response = await fetch(`${this.game.javaURI}/updateStats`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uid, gname, stats })
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
         } catch (error) {
             console.error("Error updating stats:", error);
             return "Error updating stats";
         }
     }
 
-    static async fetchQuestionByCategory(category) {
-        try {
-            const personId = this.id;
-            const response = await fetch(
-                `${this.javaURI}/rpg_answer/getQuestion?category=${category}&personid=${personId}`, 
-                this.fetchOptions
-            );
-    
-            if (!response.ok) {
-                throw new Error("Failed to fetch questions");
-            }
-    
-            const questions = await response.json();
-            console.log(questions);
-            return questions;
-        } catch (error) {
-            console.error("Error fetching question by category:", error);
-            return null;
-        }
-    }
-    
-    static async attemptQuizForNpc(npcCategory, callback = null) {
-        const personId = this.id;
-    
-        try {
-            const response = await this.fetchQuestionByCategory(npcCategory);
-            const allQuestions = response?.questions || [];
-    
-            if (allQuestions.length === 0) {
-                alert(`✅ You've already completed all of ${npcCategory}'s questions!`);
-                return;
-            }
-    
-            const quiz = new Quiz();
-            quiz.initialize();
-            quiz.openPanel(npcCategory, callback, allQuestions);
-    
-        } catch (error) {
-            console.error("Error during NPC quiz attempt:", error);
-            alert("⚠️ There was a problem loading the quiz. Please try again.");
-        }
-    }
-    
-    static async updateStatsMCQ(questionId, choiceId, personId) {
+    async updateStatsMCQ(questionId, choiceId, personId) {
         try {
             console.log("Submitting answer with:", { questionId, choiceId, personId });
-
-            const response = await fetch(this.javaURI + '/rpg_answer/submitMCQAnswer', {
+            
+            const response = await fetch(this.game.javaURI + '/rpg_answer/submitMCQAnswer', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ questionId, personId, choiceId })
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
+            if (!response.ok) throw new Error("Network response was not ok");
             return response;
         } catch (error) {
             console.error("Error submitting MCQ answer:", error);
@@ -245,21 +101,19 @@ class Game {
         }
     }
 
-    static async transitionToWallstreet(personId) {
+    async transitionToWallstreet(personId) {
         try {
-            const response = await fetch(`${this.javaURI}/question/transitionToWallstreet/${personId}`, this.fetchOptions);
-            if (!response.ok) {
-                throw new Error("Failed to fetch questions");
-            }
+            const response = await fetch(`${this.game.javaURI}/question/transitionToWallstreet/${personId}`, this.game.fetchOptions);
+            if (!response.ok) throw new Error("Failed to fetch questions");
             const questionsAnswered = await response.json();
-            return questionsAnswered >=12;
+            return questionsAnswered >= 12;
         } catch (error) {
-            console.error("Error transitioning to Paradise:", error);
+            console.error("Error transitioning to Wallstreet:", error);
             return null;
         }
     }
 
-    static initStatsUI() {
+    initStatsUI() {
         // Create theme colors for consistent UI
         const themeColor = '#4a86e8'; // Main theme color (blue)
         const themeShadow = 'rgba(74, 134, 232, 0.7)'; // Shadow color matching theme
@@ -298,7 +152,7 @@ class Game {
     }
     
     // Create a styled stopwatch
-    static createStopwatch() {
+    createStopwatch() {
         // Use the theme color for consistent design
         const themeColor = '#4a86e8';
         const themeShadow = 'rgba(74, 134, 232, 0.7)';
@@ -370,9 +224,23 @@ class Game {
         stopwatchContainer.appendChild(progressBarContainer);
         document.body.appendChild(stopwatchContainer);
     }
+}
+
+class TimeManager {
+    constructor(game) {
+        this.game = game;
+        this.gameTimer = 0;
+        this.timerInterval = null;
+        this.currentLevelInstance = null;
+    }
+
+    setCurrentLevelInstance(instance) {
+        this.currentLevelInstance = instance;
+        console.log("Current level instance set:", instance);
+    }
     
     // Game timer functionality
-    static startStopwatch() {
+    startStopwatch() {
         // Theme colors
         const themeColor = '#4a86e8';
         const themeShadow = 'rgba(74, 134, 232, 0.7)';
@@ -461,7 +329,7 @@ class Game {
         }, 100); // Update every 100ms for smoother animation
     }
     
-    static updateTimerDisplay(display, time) {
+    updateTimerDisplay(display, time) {
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         const tenths = Math.floor((time * 10) % 10);
@@ -469,14 +337,14 @@ class Game {
         display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
     }
     
-    static stopGame() {
+    stopGame() {
         // Clear the timer interval
         clearInterval(this.timerInterval);
         
         // Stop the game
-        if (this.gameControl && typeof this.gameControl.stop === 'function') {
+        if (this.game.gameControl && typeof this.game.gameControl.stop === 'function') {
             // Stop all game mechanics, animations, and inputs
-            this.gameControl.stop();
+            this.game.gameControl.stop();
         }
         
         // Create explosion effect
@@ -488,7 +356,7 @@ class Game {
         }, 1000);
     }
     
-    static createExplosionEffect() {
+    createExplosionEffect() {
         // Create a full-screen explosion effect
         const explosion = document.createElement('div');
         explosion.style.position = 'fixed';
@@ -514,7 +382,7 @@ class Game {
         }, 0);
     }
     
-    static showGameOverScreen() {
+    showGameOverScreen() {
         // Use theme colors for consistent design
         const themeColor = '#4a86e8';
         const themeShadow = 'rgba(74, 134, 232, 0.7)';
@@ -609,8 +477,15 @@ class Game {
             location.reload(); // Reload the page to restart the game
         });
     }
+}
 
-    // Add method to give items to player
+class InventoryManager {
+    constructor(game) {
+        this.game = game;
+        this.inventory = Inventory.getInstance();
+        this.giveStartingItems();
+    }
+
     giveItem(itemId, quantity = 1) {
         console.log("Giving item:", itemId, "quantity:", quantity);
         const item = defaultItems[itemId];
@@ -628,23 +503,19 @@ class Game {
         return this.inventory.addItem(itemToAdd);
     }
 
-    // Add method to remove items from player
     removeItem(itemId, quantity = 1) {
-        return Inventory.getInstance().removeItem(itemId, quantity);
+        return this.inventory.removeItem(itemId, quantity);
     }
 
-    // Add method to check if player has an item
     hasItem(itemId) {
-        return Inventory.getInstance().items.some(item => item.id === itemId);
+        return this.inventory.items.some(item => item.id === itemId);
     }
 
-    // Add method to get item quantity
     getItemQuantity(itemId) {
-        const item = Inventory.getInstance().items.find(item => item.id === itemId);
+        const item = this.inventory.items.find(item => item.id === itemId);
         return item ? item.quantity : 0;
     }
 
-    // Add method to give starting items
     giveStartingItems() {
         console.log("Giving starting items to player...");
         
@@ -669,4 +540,196 @@ class Game {
         this.giveItem('roi_calculator', 1);     // 1 ROI Calculator
     }
 }
+
+class QuizManager {
+    constructor(game) {
+        this.game = game;
+    }
+
+    async fetchQuestionByCategory(category) {
+        try {
+            const personId = this.game.id;
+            const response = await fetch(
+                `${this.game.javaURI}/rpg_answer/getQuestion?category=${category}&personid=${personId}`, 
+                this.game.fetchOptions
+            );
+    
+            if (!response.ok) throw new Error("Failed to fetch questions");
+            const questions = await response.json();
+            console.log(questions);
+            return questions;
+        } catch (error) {
+            console.error("Error fetching question by category:", error);
+            return null;
+        }
+    }
+    
+    async attemptQuizForNpc(npcCategory, callback = null) {
+        try {
+            const response = await this.fetchQuestionByCategory(npcCategory);
+            const allQuestions = response?.questions || [];
+    
+            if (allQuestions.length === 0) {
+                alert(`✅ You've already completed all of ${npcCategory}'s questions!`);
+                return;
+            }
+    
+            const quiz = new Quiz();
+            quiz.initialize();
+            quiz.openPanel(npcCategory, callback, allQuestions);
+    
+        } catch (error) {
+            console.error("Error during NPC quiz attempt:", error);
+            alert("⚠️ There was a problem loading the quiz. Please try again.");
+        }
+    }
+}
+
+class Game {
+    constructor() {
+        console.log("Initializing game...");
+        this.environment = null;
+        this.path = null;
+        this.gameContainer = null;
+        this.gameCanvas = null;
+        this.pythonURI = null;
+        this.javaURI = null;
+        this.fetchOptions = null;
+        this.uid = null;
+        this.id = null;
+        this.gname = null;
+        this.gameControl = null;
+
+        // Manager instances
+        this.statsManager = null;
+        this.timeManager = null;
+        this.inventoryManager = null;
+        this.quizManager = null;
+    }
+
+    // Main initialization method
+    main(environment) {
+        console.log("Setting up game environment...");
+        // Store environment properties
+        this.environment = environment;
+        this.path = environment.path;
+        this.gameContainer = environment.gameContainer;
+        this.gameCanvas = environment.gameCanvas;
+        this.pythonURI = environment.pythonURI;
+        this.javaURI = environment.javaURI;
+        this.fetchOptions = environment.fetchOptions;
+
+        // Initialize managers
+        this.statsManager = new StatsManager(this);
+        this.timeManager = new TimeManager(this);
+        this.inventoryManager = new InventoryManager(this);
+        this.quizManager = new QuizManager(this);
+
+        // Initialize user and game components
+        this.initUser();
+        
+        // Start the game
+        const gameLevelClasses = environment.gameLevelClasses;
+        this.gameControl = new GameControl(this, gameLevelClasses);
+        this.gameControl.start();
+        
+        // Start the stopwatch
+        this.timeManager.startStopwatch();
+    }
+
+    // Initialize user data
+    initUser() {
+        const pythonURL = this.pythonURI + '/api/id';
+        fetch(pythonURL, this.fetchOptions)
+            .then(response => {
+                if (response.status !== 200) {
+                    console.error("HTTP status code: " + response.status);
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                this.uid = data.uid;
+                console.log("User ID:", this.uid);
+
+                const javaURL = this.javaURI + '/rpg_answer/person/' + this.uid;
+                return fetch(javaURL, this.fetchOptions);
+            })
+            .then(response => {
+                if (!response || !response.ok) {
+                    throw new Error(`Spring server response: ${response?.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                this.id = data.id;
+                this.statsManager.fetchStats(data.id);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    }
+
+    // Static methods to delegate to appropriate managers
+    static main(environment) {
+        const game = new Game();
+        game.main(environment);
+        return game;
+    }
+
+    static setCurrentLevelInstance(instance) {
+        if (this.timeManager) {
+            this.timeManager.setCurrentLevelInstance(instance);
+        }
+    }
+
+    // Delegate methods to appropriate managers
+    giveItem(itemId, quantity = 1) {
+        return this.inventoryManager.giveItem(itemId, quantity);
+    }
+
+    removeItem(itemId, quantity = 1) {
+        return this.inventoryManager.removeItem(itemId, quantity);
+    }
+
+    hasItem(itemId) {
+        return this.inventoryManager.hasItem(itemId);
+    }
+
+    getItemQuantity(itemId) {
+        return this.inventoryManager.getItemQuantity(itemId);
+    }
+
+    attemptQuizForNpc(npcCategory, callback = null) {
+        return this.quizManager.attemptQuizForNpc(npcCategory, callback);
+    }
+
+    // API wrapper methods
+    async createStats(stats, gname, uid) {
+        return this.statsManager.createStats(stats, gname, uid);
+    }
+
+    async getStats(uid) {
+        return this.statsManager.getStats(uid);
+    }
+
+    async updateStats(stats, gname, uid) {
+        return this.statsManager.updateStats(stats, gname, uid);
+    }
+
+    async updateStatsMCQ(questionId, choiceId, personId) {
+        return this.statsManager.updateStatsMCQ(questionId, choiceId, personId);
+    }
+
+    async transitionToWallstreet(personId) {
+        return this.statsManager.transitionToWallstreet(personId);
+    }
+
+    async fetchQuestionByCategory(category) {
+        return this.quizManager.fetchQuestionByCategory(category);
+    }
+}
+
 export default Game;
