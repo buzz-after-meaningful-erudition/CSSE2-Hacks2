@@ -7,54 +7,41 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('End Ship Platformer - Game Initializing');
     
-    // Initialize UI
-    UI.init();
-    
     // Create game instance - will auto-start the level
-    const game = new Game();
-    
-    // Handle window resizing
-    window.addEventListener('resize', resizeGame);
-    resizeGame();
-    
-    // Handle visibility change (tab switching)
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden && game.currentState === CONFIG.STATES.PLAYING) {
-            game.pauseGame();
-        }
-    });
-    
-    /**
-     * Resizes the game canvas based on window size
-     */
-    function resizeGame() {
-        const gameContainer = document.querySelector('.game-container');
-        const aspectRatio = CONFIG.CANVAS.WIDTH / CONFIG.CANVAS.HEIGHT;
+    // Make sure it's only created once
+    if (!window.gameInitialized) {
+        const game = new Game();
+        window.gameInitialized = true;
         
-        // Get window dimensions
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        
-        // Set max width/height
-        const maxWidth = Math.min(windowWidth * 0.95, CONFIG.CANVAS.WIDTH);
-        const maxHeight = Math.min(windowHeight * 0.8, CONFIG.CANVAS.HEIGHT);
-        
-        // Calculate dimensions that maintain aspect ratio
-        let newWidth = maxWidth;
-        let newHeight = newWidth / aspectRatio;
-        
-        if (newHeight > maxHeight) {
-            newHeight = maxHeight;
-            newWidth = newHeight * aspectRatio;
+        // Connect retry button
+        const retryBtn = document.getElementById('retry-btn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', function() {
+                game.retryGame();
+            });
         }
         
-        // Apply new dimensions
-        gameContainer.style.width = `${newWidth}px`;
+        // Connect resume button
+        const resumeBtn = document.getElementById('resume-btn');
+        if (resumeBtn) {
+            resumeBtn.addEventListener('click', function() {
+                game.resumeGame();
+            });
+        }
         
-        // Update canvas
-        const canvas = document.getElementById('game-canvas');
-        canvas.style.height = `${Math.min(800, newHeight - 150)}px`; // Subtract header/footer height
+        // Handle pause button
+        const pauseBtn = document.getElementById('pause-btn');
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', function() {
+                game.pauseGame();
+            });
+        }
+        
+        // Handle visibility change (tab switching)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && game.currentState === CONFIG.STATES.PLAYING) {
+                game.pauseGame();
+            }
+        });
     }
-    
-    console.log('End Ship Platformer - Game Initialized');
 });

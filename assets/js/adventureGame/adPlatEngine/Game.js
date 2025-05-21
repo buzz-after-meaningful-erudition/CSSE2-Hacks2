@@ -5,14 +5,15 @@
 
 class Game {
     constructor() {
+        console.log("Initializing game...");
+        
         // Initialize canvas
         this.canvas = document.getElementById('game-canvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // Set canvas size based on CONFIG
-        this.canvas.width = CONFIG.CANVAS.WIDTH;
-        this.canvas.height = CONFIG.CANVAS.HEIGHT;
-    
+        // Set canvas size based on window size
+        this.resizeCanvas();
+        
         // Game state
         this.currentState = CONFIG.STATES.PLAYING;
         this.lastTime = 0;
@@ -20,27 +21,70 @@ class Game {
         // Game objects
         this.player1 = null;
         
+        // Make sure overlay screens are hidden
+        document.getElementById('pause-screen').classList.add('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
+        
         // Initialize input handler
         InputHandler.init(this);
         
         // Initialize UI
         UI.init();
         
-        // Create player immediately
-        this.initGame();
+        // Setup window resize handler
+        window.addEventListener('resize', () => this.resizeCanvas());
         
         // Make game instance globally accessible
         window.game = this;
         
+        // Create player
+        this.initGame();
+        
         // Start game loop
         this.gameLoop(performance.now());
+        
+        console.log("End Ship Platformer - Game Initialized");
+    }
+    
+    /**
+     * Resize canvas to fit window
+     */
+    resizeCanvas() {
+        const gameHeader = document.querySelector('.game-header');
+        const gameFooter = document.querySelector('.game-footer');
+        
+        const headerHeight = gameHeader ? gameHeader.offsetHeight : 0;
+        const footerHeight = gameFooter ? gameFooter.offsetHeight : 0;
+        
+        // Set canvas size based on window size minus header and footer
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight - headerHeight - footerHeight;
+        
+        // Update CONFIG to match new canvas size
+        CONFIG.CANVAS.WIDTH = this.canvas.width;
+        CONFIG.CANVAS.HEIGHT = this.canvas.height;
+        
+        // Update world bounds
+        CONFIG.ENVIRONMENT.WORLD_BOUNDS.RIGHT = this.canvas.width;
+        CONFIG.ENVIRONMENT.WORLD_BOUNDS.BOTTOM = this.canvas.height;
+        
+        // Update floor position
+        CONFIG.ENVIRONMENT.FLOOR_Y = this.canvas.height - 50;
+        
+        // Update platform positions
+        if (typeof updatePlatforms === 'function') {
+            updatePlatforms();
+        }
     }
     
     /**
      * Initialize game by creating player and setting up UI
      */
     initGame() {
-        // Create player
+        console.log("Setting game state to: playing");
+        this.currentState = CONFIG.STATES.PLAYING;
+        
+        // Create player at starting position
         this.player1 = new Player();
         
         // Reset player health
@@ -50,8 +94,32 @@ class Game {
         UI.updateHealthBars(this.player1);
         UI.showMessage("Level Started!", 2000);
         
-        // Start game
-        this.setGameState(CONFIG.STATES.PLAYING);
+        console.log("Game initialized, player position:", this.player1.x, this.player1.y);
+    }
+    
+    /**
+     * Reset the game for retry
+     */
+    retryGame() {
+        // Reset player position and health
+        if (this.player1) {
+            this.player1.x = CONFIG.PLAYER.START_X;
+            this.player1.y = CONFIG.PLAYER.START_Y;
+            this.player1.velocityX = 0;
+            this.player1.velocityY = 0;
+            this.player1.health = this.player1.maxHealth;
+            this.player1.forcesX = [];
+            this.player1.forcesY = [];
+        }
+        
+        // Update UI
+        UI.updateHealthBars(this.player1);
+        
+        // Hide game over screen
+        document.getElementById('game-over-screen').classList.add('hidden');
+        
+        // Set state back to playing
+        this.currentState = CONFIG.STATES.PLAYING;
     }
     
     /**
@@ -59,10 +127,14 @@ class Game {
      * @param {String} state - New game state
      */
     setGameState(state) {
+        if (this.currentState === state) {
+            return; // Already in this state, do nothing
+        }
+        
+        console.log("Setting game state to:", state);
         this.currentState = state;
     
-        // Hide all screens
-        document.getElementById('game-screen').classList.remove('hidden');
+        // Hide all overlay screens first
         document.getElementById('pause-screen').classList.add('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
         
@@ -206,5 +278,13 @@ class Game {
         
         // Restore the canvas state
         this.ctx.restore();
+        
+        // Debug info
+        if (CONFIG.GAME.DEBUG_MODE && this.player1) {
+            this.ctx.fillStyle = '#d8a8ff';
+            this.ctx.font = '14px monospace';
+            this.ctx.fillText(`Player: x=${Math.round(this.player1.x)}, y=${Math.round(this.player1.y)}, health=${this.player1.health}`, 10, 20);
+            this.ctx.fillText(`State: ${this.currentState}`, 10, 40);
+        }
     }
 }

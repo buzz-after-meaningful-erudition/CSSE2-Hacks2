@@ -40,6 +40,10 @@ class Character {
         this.frameIndex = 0;
         this.frameTick = 0;
         this.frameDelay = 5; // Update frame every 5 game ticks
+        
+        // Falling detection
+        this.fallingStartY = 0;
+        this.isFalling = false;
     }
     
     /**
@@ -96,6 +100,33 @@ class Character {
         const previousX = this.x;
         const previousY = this.y;
         const wasGrounded = this.isGrounded;
+        
+        // Track falling for damage calculation
+        if (!this.isGrounded && this.velocityY > 5) {
+            if (!this.isFalling) {
+                this.isFalling = true;
+                this.fallingStartY = this.y;
+            }
+        } else if (this.isGrounded) {
+            // Check for fall damage when landing
+            if (this.isFalling) {
+                const fallDistance = Math.abs(this.fallingStartY - previousY);
+                if (fallDistance > 300) { // Only take damage for big falls
+                    const fallDamage = Math.floor(fallDistance / 100); // 1 damage per 100px
+                    this.health -= fallDamage;
+                    
+                    // Check if player is now dead
+                    if (this.health <= 0) {
+                        this.health = 0;
+                        // Handle game over
+                        if (window.game) {
+                            window.game.setGameState(CONFIG.STATES.GAME_OVER);
+                        }
+                    }
+                }
+                this.isFalling = false;
+            }
+        }
         
         // Update position - split X and Y updates for better collision
         this.x += this.velocityX;
@@ -245,15 +276,17 @@ class Character {
     handleOutOfBounds() {
         // For player characters, reset position to a spawn point
         if (this.type === 'player') {
-            this.x = CONFIG.PLAYER.START_X;
-            this.y = CONFIG.PLAYER.START_Y;
-            this.velocityX = 0;
-            this.velocityY = 0;
-            this.health -= 10; // Lose health when falling out of bounds
+            this.health -= 20; // Lose 20 health when falling out
             
-            // Check if player is now dead
-            if (this.health <= 0) {
+            // Only teleport back if still alive
+            if (this.health > 0) {
+                this.x = CONFIG.PLAYER.START_X;
+                this.y = CONFIG.PLAYER.START_Y;
+                this.velocityX = 0;
+                this.velocityY = 0;
+            } else {
                 // Handle game over
+                this.health = 0;
                 if (window.game) {
                     window.game.setGameState(CONFIG.STATES.GAME_OVER);
                 }
