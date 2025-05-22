@@ -10,8 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize UI
     UI.init();
     
-    // Create game instance - will auto-start the level
-    const game = new Game();
+    const backgroundImagePath = 'images/endship.png'; // Example path
+    const game = new Game(backgroundImagePath);
+    
+    // Alternative: Create game without background image
+    // const game = new Game();
+    
+    // You can also set the background image later:
+    // game.setBackgroundImage('path/to/another/background.png');
     
     // Handle window resizing
     window.addEventListener('resize', resizeGame);
@@ -58,3 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('End Ship Platformer - Game Initialized');
 });
+
+// Global function to change background image during gameplay
+window.changeBackground = function(imagePath) {
+    if (window.game) {
+        window.game.setBackgroundImage(imagePath);
+    }
+};

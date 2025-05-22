@@ -4,7 +4,7 @@
  */
 
 class Game {
-    constructor() {
+    constructor(backgroundImageSrc = null) {
         // Initialize canvas
         this.canvas = document.getElementById('game-canvas');
         this.ctx = this.canvas.getContext('2d');
@@ -20,6 +20,15 @@ class Game {
         // Game objects
         this.player1 = null;
         
+        // Background image handling
+        this.backgroundImage = null;
+        this.backgroundLoaded = false;
+        
+        // Load background image if provided
+        if (backgroundImageSrc) {
+            this.loadBackgroundImage(backgroundImageSrc);
+        }
+        
         // Initialize input handler
         InputHandler.init(this);
         
@@ -34,6 +43,32 @@ class Game {
         
         // Start game loop
         this.gameLoop(performance.now());
+    }
+    
+    /**
+     * Load background image
+     * @param {String} imageSrc - Path to the background image
+     */
+    loadBackgroundImage(imageSrc) {
+        this.backgroundImage = new Image();
+        this.backgroundImage.onload = () => {
+            this.backgroundLoaded = true;
+            console.log('Background image loaded successfully');
+        };
+        this.backgroundImage.onerror = () => {
+            console.error('Failed to load background image:', imageSrc);
+            this.backgroundLoaded = false;
+        };
+        this.backgroundImage.src = imageSrc;
+    }
+    
+    /**
+     * Set a new background image
+     * @param {String} imageSrc - Path to the new background image
+     */
+    setBackgroundImage(imageSrc) {
+        this.backgroundLoaded = false;
+        this.loadBackgroundImage(imageSrc);
     }
     
     /**
@@ -108,7 +143,7 @@ class Game {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
         
-        // Clear canvas
+        // Clear canvas with fallback color
         this.ctx.fillStyle = '#0c0015'; // Dark purple-black for End theme
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
@@ -167,11 +202,33 @@ class Game {
     }
     
     /**
+     * Draws the background
+     */
+    drawBackground() {
+        if (this.backgroundLoaded && this.backgroundImage) {
+            // Draw the background image to fit the entire canvas
+            this.ctx.drawImage(
+                this.backgroundImage, 
+                0, 0, 
+                this.canvas.width, 
+                this.canvas.height
+            );
+        } else {
+            // Fallback: draw solid color background
+            this.ctx.fillStyle = '#0c0015'; // Dark purple-black for End theme
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+    
+    /**
      * Draws game objects
      */
     drawGame() {
         // Save the canvas state
         this.ctx.save();
+        
+        // Draw background first
+        this.drawBackground();
         
         // Draw floor
         this.ctx.fillStyle = '#16081c'; // Dark purple for End theme
