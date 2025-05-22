@@ -19,6 +19,7 @@ class Game {
         
         // Game objects
         this.player1 = null;
+        this.enemies = [];
         
         // Initialize input handler
         InputHandler.init(this);
@@ -43,24 +44,62 @@ class Game {
         // Create player
         this.player1 = new Player();
         
+        // Create initial enemies
+        this.createEnemies();
+        
         // Reset player health
         this.player1.health = this.player1.maxHealth;
         
         // Update UI
         UI.updateHealthBars(this.player1);
         UI.showMessage("Level Started!", 2000);
-        
+
         // Start game
         this.setGameState(CONFIG.STATES.PLAYING);
     }
-    
+
+    /**
+     * Create initial enemies in the game
+     */
+    createEnemies() {
+        // Create enemies on different platforms
+        const platformConfigs = PLATFORM_CONFIGS[getCurrentPlatformConfig()];
+        
+        // Add enemies to different platforms
+        platformConfigs.forEach((platform, index) => {
+            // Only add enemies to middle platforms
+            if (index > 0 && index < platformConfigs.length - 1) {
+                const enemy = new Enemy(
+                    platform.x + platform.width / 2, // Center of platform
+                    platform.y - CONFIG.PLAYER.HEIGHT, // Slightly above platform
+                    CONFIG.PLAYER.WIDTH * 0.8, // Slightly smaller than player
+                    CONFIG.PLAYER.HEIGHT * 0.8,
+                    CONFIG.PLAYER.SPEED * 0.7, // Slower than player
+                    100 // Enemy health
+                );
+                this.enemies.push(enemy);
+            }
+        });
+    }
+
+    /**
+     * Remove an enemy from the game
+     * @param {Enemy} enemy - Enemy to remove
+     */
+    removeEnemy(enemy) {
+        const index = this.enemies.indexOf(enemy);
+        if (index > -1) {
+            this.enemies.splice(index, 1);
+        }
+    }
+
     /**
      * Sets the game state and updates UI
      * @param {String} state - New game state
      */
     setGameState(state) {
         this.currentState = state;
-    
+        
         // Hide all screens
         document.getElementById('game-screen').classList.remove('hidden');
         document.getElementById('pause-screen').classList.add('hidden');
@@ -78,8 +117,8 @@ class Game {
                 document.getElementById('game-over-screen').classList.remove('hidden');
                 break;
         }
-    }
-    
+    };
+
     /**
      * Pauses the game
      */
@@ -118,12 +157,14 @@ class Game {
                 this.updateGame(deltaTime);
                 this.drawGame();
                 break;
-                
             case CONFIG.STATES.PAUSED:
             case CONFIG.STATES.GAME_OVER:
                 this.drawGame(); // Draw current state without updating
                 break;
-        }
+        };
+        
+        // Continue the loop
+        this.animationFrameId = requestAnimationFrame((time) => this.gameLoop(time));
         
         // Continue the loop
         this.animationFrameId = requestAnimationFrame((time) => this.gameLoop(time));
@@ -141,6 +182,11 @@ class Game {
         
         // Update game objects
         this.player1.update();
+        
+        // Update enemies
+        this.enemies.forEach(enemy => {
+            enemy.update();
+        });
         
         // Update UI
         UI.updateHealthBars(this.player1);
@@ -170,6 +216,20 @@ class Game {
      * Draws game objects
      */
     drawGame() {
+        // Save the canvas state
+        this.ctx.save();
+        
+        // Draw floor
+        this.ctx.fillStyle = '#16081c'; // Dark purple for End theme
+        this.ctx.fillRect(0, CONFIG.ENVIRONMENT.FLOOR_Y, CONFIG.CANVAS.WIDTH, CONFIG.CANVAS.HEIGHT - CONFIG.ENVIRONMENT.FLOOR_Y);
+        
+        // Draw enemies
+        this.enemies.forEach(enemy => {
+            enemy.draw(this.ctx);
+        });
+        
+        // Draw player
+        this.player1.draw(this.ctx);
         // Save the canvas state
         this.ctx.save();
         
