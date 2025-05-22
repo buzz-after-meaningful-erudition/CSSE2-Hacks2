@@ -19,6 +19,7 @@ class Game {
         
         // Game objects
         this.player1 = null;
+        this.enemies = [];
         
         // Background image handling
         this.backgroundImage = null;
@@ -81,12 +82,31 @@ class Game {
         // Reset player health
         this.player1.health = this.player1.maxHealth;
         
+        // Create enemies
+        this.spawnEnemies();
+        
         // Update UI
         UI.updateHealthBars(this.player1);
         UI.showMessage("Level Started!", 2000);
         
         // Start game
         this.setGameState(CONFIG.STATES.PLAYING);
+    }
+    
+    /**
+     * Spawn enemies at configured locations
+     */
+    spawnEnemies() {
+        this.enemies = [];
+        
+        if (CONFIG.ENEMY.SPAWN_POINTS) {
+            for (const spawnPoint of CONFIG.ENEMY.SPAWN_POINTS) {
+                const enemy = new Enemy(spawnPoint.x, spawnPoint.y);
+                this.enemies.push(enemy);
+            }
+        }
+        
+        console.log(`Spawned ${this.enemies.length} enemies`);
     }
     
     /**
@@ -177,8 +197,66 @@ class Game {
         // Update game objects
         this.player1.update();
         
+        // Update enemies
+        this.updateEnemies();
+        
+        // Check collisions
+        this.checkCollisions();
+        
         // Update UI
         UI.updateHealthBars(this.player1);
+    }
+    
+    /**
+     * Update all enemies
+     */
+    updateEnemies() {
+        // Update each enemy
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+            const enemy = this.enemies[i];
+            enemy.update();
+            
+            // Remove dead enemies that have finished their death animation
+            if (enemy.shouldRemove) {
+                this.enemies.splice(i, 1);
+            }
+        }
+    }
+    
+    /**
+     * Check collisions between player and enemies
+     */
+    checkCollisions() {
+        if (!this.player1 || this.player1.health <= 0) return;
+        
+        for (const enemy of this.enemies) {
+            const collisionResult = enemy.checkPlayerCollision(this.player1);
+            
+            if (collisionResult === 'kill_player') {
+                // Enemy kills player
+                this.player1.health -= 50; // Significant damage
+                
+                // Apply knockback to player
+                const knockbackDirection = this.player1.x < enemy.x ? -1 : 1;
+                this.player1.applyForce(knockbackDirection * 8, -5, 10);
+                
+                // Show damage message
+                UI.showMessage("Ouch! Enemy hit!", 1500);
+                
+                // Check if player is dead
+                if (this.player1.health <= 0) {
+                    this.player1.health = 0;
+                    UI.showMessage("Game Over!", 3000);
+                    setTimeout(() => {
+                        this.setGameState(CONFIG.STATES.GAME_OVER);
+                    }, 1000);
+                }
+                
+            } else if (collisionResult === 'kill_enemy') {
+                // Player killed enemy (already handled in enemy class)
+                UI.showMessage("Enemy defeated!", 1000);
+            }
+        }
     }
     
     /**
@@ -260,6 +338,11 @@ class Game {
         
         // Draw game objects
         if (this.player1) this.player1.draw(this.ctx);
+        
+        // Draw enemies
+        for (const enemy of this.enemies) {
+            enemy.draw(this.ctx);
+        }
         
         // Restore the canvas state
         this.ctx.restore();
