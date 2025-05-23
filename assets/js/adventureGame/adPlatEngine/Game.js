@@ -21,6 +21,11 @@ class Game {
         this.enemies = [];
         this.projectiles = [];
         
+        // Victory tracking
+        this.enemiesKilled = 0;
+        this.totalEnemies = 0;
+        this.victoryLinkShown = false;
+        
         // Background image handling
         this.backgroundImage = null;
         this.backgroundLoaded = false;
@@ -90,6 +95,12 @@ class Game {
      * Initialize game by creating player and setting up UI
      */
     initGame() {
+        // Remove any existing victory overlay
+        const existingOverlay = document.getElementById('victory-overlay');
+        if (existingOverlay) {
+            document.body.removeChild(existingOverlay);
+        }
+        
         // Create player
         this.player1 = new Player();
         
@@ -118,6 +129,8 @@ class Game {
      */
     spawnEnemies() {
         this.enemies = [];
+        this.enemiesKilled = 0;
+        this.victoryLinkShown = false;
         
         if (CONFIG.ENEMY.SPAWN_POINTS) {
             for (const spawnPoint of CONFIG.ENEMY.SPAWN_POINTS) {
@@ -126,6 +139,7 @@ class Game {
             }
         }
         
+        this.totalEnemies = this.enemies.length;
         console.log(`Spawned ${this.enemies.length} enemies`);
     }
     
@@ -257,8 +271,117 @@ class Game {
             // Remove dead enemies that have finished their death animation
             if (enemy.shouldRemove) {
                 this.enemies.splice(i, 1);
+                this.enemiesKilled++;
+                
+                // Check for victory condition
+                this.checkVictoryCondition();
             }
         }
+    }
+    
+    /**
+     * Check if all enemies are defeated and show victory link
+     */
+    checkVictoryCondition() {
+        if (this.enemiesKilled >= this.totalEnemies && !this.victoryLinkShown) {
+            this.victoryLinkShown = true;
+            this.showVictoryLink();
+        }
+    }
+    
+    /**
+     * Show victory link after defeating all enemies
+     */
+    showVictoryLink() {
+        // Create victory overlay
+        const victoryOverlay = document.createElement('div');
+        victoryOverlay.id = 'victory-overlay';
+        victoryOverlay.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(39, 15, 51, 0.95);
+            border: 1px solid #9b30ff;
+            border-radius: 6px;
+            padding: 15px;
+            z-index: 1000;
+            font-family: 'Minecraft', 'Courier New', monospace;
+            max-width: 250px;
+        `;
+        
+        // Victory message
+        const victoryTitle = document.createElement('h3');
+        victoryTitle.textContent = 'You have successfully defeated all enemies.';
+        victoryTitle.style.cssText = `
+            color: #d8a8ff;
+            font-size: 16px;
+            margin: 0 0 10px 0;
+        `;
+        
+        // Victory link button
+        const victoryLink = document.createElement('a');
+        victoryLink.href = '../../../../gamify/end'; // this could be ../../../../navigation/adventureGame/end.md but that gave me the pretty print bs so idrk
+        victoryLink.target = '_blank';
+        victoryLink.textContent = 'Claim Elytra & Return →';
+        victoryLink.style.cssText = `
+            display: inline-block;
+            background-color: #9b30ff;
+            color: #0c0015;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 8px;
+            transition: background-color 0.2s ease;
+        `;
+        
+        // Simple hover effect
+        victoryLink.addEventListener('mouseenter', () => {
+            victoryLink.style.backgroundColor = '#b347ff';
+        });
+        
+        victoryLink.addEventListener('mouseleave', () => {
+            victoryLink.style.backgroundColor = '#9b30ff';
+        });
+        
+        // Close button
+        const closeButton = document.createElement('button');
+        closeButton.textContent = '×';
+        closeButton.style.cssText = `
+            background: none;
+            color: #9565c9;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 8px;
+            transition: color 0.2s ease;
+        `;
+        
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(victoryOverlay);
+        });
+        
+        closeButton.addEventListener('mouseenter', () => {
+            closeButton.style.color = '#d8a8ff';
+        });
+        
+        closeButton.addEventListener('mouseleave', () => {
+            closeButton.style.color = '#9565c9';
+        });
+        
+        // Assemble the overlay
+        victoryOverlay.appendChild(victoryTitle);
+        const buttonContainer = document.createElement('div');
+        buttonContainer.appendChild(victoryLink);
+        buttonContainer.appendChild(closeButton);
+        victoryOverlay.appendChild(buttonContainer);
+        
+        // Add to page
+        document.body.appendChild(victoryOverlay);
+        
+        console.log('Elytra Retrieved! You may now return to the end.');
     }
     
     /**
