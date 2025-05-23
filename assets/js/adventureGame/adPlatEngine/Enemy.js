@@ -25,7 +25,7 @@ class Enemy extends Character {
         );
         
         // Enemy-specific properties
-        this.color = CONFIG.ENEMY.COLOR || "#FF00FF"; // Purple
+        this.color = CONFIG.ENEMY.COLOR || "#FF00FF"; // Purple fallback
         this.movementDirection = Math.random() < 0.5 ? -1 : 1; // Random starting direction
         this.directionChangeChance = CONFIG.ENEMY.DIRECTION_CHANGE_CHANCE || 0.005; // 1.5% per tick
         
@@ -37,10 +37,37 @@ class Enemy extends Character {
         this.animationSpeed = 8; // Frames per animation update
         this.bobOffset = 0; // For slight bobbing animation
         
+        // Sprite properties
+        this.sprite = null;
+        this.spriteLoaded = false;
+        this.spriteWidth = 64;
+        this.spriteHeight = 64;
+        this.frameIndex = 0;
+        this.animationFrame = 0;
+        
         // State
         this.isAlive = true;
         this.deathTimer = 0;
         this.deathDuration = 30; // Frames to show death animation
+        
+        // Load sprite
+        this.loadSprite();
+    }
+    
+    /**
+     * Load the enemy sprite
+     */
+    loadSprite() {
+        this.sprite = new Image();
+        this.sprite.onload = () => {
+            this.spriteLoaded = true;
+        };
+        this.sprite.onerror = () => {
+            console.warn('Enemy sprite failed to load, using fallback rectangle');
+            this.spriteLoaded = false;
+        };
+        // Replace 'enemy_sprite.png' with your actual sprite file path
+        this.sprite.src = 'shulker.png';
     }
     
     /**
@@ -79,6 +106,13 @@ class Enemy extends Character {
         
         // Update bobbing animation
         this.bobOffset = Math.sin(this.frameIndex * 0.3) * 2;
+        
+        // Update animation frame counter
+        this.animationFrame++;
+        if (this.animationFrame >= this.animationSpeed) {
+            this.animationFrame = 0;
+            this.frameIndex = (this.frameIndex + 1) % this.getFrameCount();
+        }
     }
     
     /**
@@ -165,12 +199,9 @@ class Enemy extends Character {
      * @returns {Number} Frame count
      */
     getFrameCount() {
-        switch (this.state) {
-            case 'idle': return 4;
-            case 'run': return 6;
-            case 'die': return 6;
-            default: return 4;
-        }
+        // Since you have a single 64x64 sprite, return 1 frame
+        // You can modify this if you add animation frames later
+        return 1;
     }
     
     /**
@@ -187,19 +218,50 @@ class Enemy extends Character {
         // Calculate draw position with bobbing effect
         const drawY = this.y + (this.isAlive ? this.bobOffset : 0);
         
-        // Draw enemy body
-        ctx.fillStyle = this.isAlive ? this.color : '#4A4A4A'; // Gray when dead
-        ctx.fillRect(this.x, drawY, this.width, this.height);
+        // Draw sprite if loaded, otherwise fallback to colored rectangle
+        if (this.spriteLoaded && this.sprite) {
+            // Save context state
+            ctx.save();
+            
+            // Flip sprite horizontally if moving left
+            if (this.movementDirection < 0) {
+                ctx.scale(-1, 1);
+                ctx.translate(-(this.x + this.width), 0);
+            }
+            
+            // Apply grayscale filter when dead
+            if (!this.isAlive) {
+                ctx.filter = 'grayscale(100%) brightness(0.7)';
+            }
+            
+            // Draw the sprite
+            // Since it's a single 64x64 sprite, we draw the entire image
+            ctx.drawImage(
+                this.sprite,
+                0, 0, // Source x, y (start of sprite)
+                this.spriteWidth, this.spriteHeight, // Source width, height
+                this.movementDirection < 0 ? this.x : this.x, drawY, // Destination x, y
+                this.width, this.height // Destination width, height
+            );
+            
+            // Restore context state
+            ctx.restore();
+        } else {
+            // Fallback to colored rectangle if sprite not loaded
+            ctx.fillStyle = this.isAlive ? this.color : '#4A4A4A'; // Gray when dead
+            ctx.fillRect(this.x, drawY, this.width, this.height);
+        }
         
-        // Draw direction indicator (small arrow or line)
+        // Draw direction indicator (small arrow or line) - debug only
         if (this.isAlive && CONFIG.GAME.DEBUG_MODE) {
             ctx.fillStyle = '#FFFF00';
             const arrowX = this.movementDirection > 0 ? this.x + this.width - 5 : this.x;
             ctx.fillRect(arrowX, drawY + this.height/2, 5, 2);
         }
         
-        // Reset alpha
+        // Reset alpha and filter
         ctx.globalAlpha = 1;
+        ctx.filter = 'none';
         
         // Draw debug info if enabled
         if (CONFIG.GAME.DEBUG_MODE) {
@@ -207,6 +269,7 @@ class Enemy extends Character {
             ctx.font = '10px Arial';
             ctx.fillText(`HP: ${Math.floor(this.health)}`, this.x, drawY - 5);
             ctx.fillText(`Dir: ${this.movementDirection}`, this.x, drawY - 15);
+            ctx.fillText(`Sprite: ${this.spriteLoaded ? 'OK' : 'FAIL'}`, this.x, drawY - 25);
         }
     }
 }
