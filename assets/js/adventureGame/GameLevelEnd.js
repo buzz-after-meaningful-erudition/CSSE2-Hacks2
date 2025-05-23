@@ -302,9 +302,7 @@ class GameLevelEnd {
           dialogueSystem.showRandomDialogue(); // Using Dialogue system instead of alert
         },
         interact: function() {
-          let quiz = new Quiz();
-          quiz.initialize();
-          quiz.openPanel(sprite_data_endship);
+          window.location.href = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '')}/adventureGame/adPlatEngine/endplatformer.html`;
         }
     };
 

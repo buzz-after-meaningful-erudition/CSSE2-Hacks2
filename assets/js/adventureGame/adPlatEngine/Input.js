@@ -10,6 +10,7 @@ const InputHandler = {
         down: false,
         left: false,
         right: false,
+        space: false,
     },
     
     /**
@@ -74,7 +75,6 @@ const InputHandler = {
                 // Player controls (WASD and Arrow keys)
                 case 'w':
                 case 'ArrowUp':
-                case ' ': // Space
                     this.keys.up = true;
                     break;
                 case 's':
@@ -88,6 +88,9 @@ const InputHandler = {
                 case 'd':
                 case 'ArrowRight':
                     this.keys.right = true;
+                    break;
+                case ' ': // Spacebar for shooting
+                    this.keys.space = true;
                     break;
                 
                 case 'p':
@@ -114,7 +117,6 @@ const InputHandler = {
         switch (key) {
             case 'w':
             case 'ArrowUp':
-            case ' ': // Space
                 this.keys.up = false;
                 break;
             case 's':
@@ -129,6 +131,9 @@ const InputHandler = {
             case 'ArrowRight':
                 this.keys.right = false;
                 break;
+            case ' ': // Spacebar
+                this.keys.space = false;
+                break;
         }
     },
     
@@ -140,5 +145,6 @@ const InputHandler = {
         this.keys.down = false;
         this.keys.left = false;
         this.keys.right = false;
+        this.keys.space = false;
     }
 };

@@ -10,11 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize UI
     UI.init();
     
-    const backgroundImagePath = 'images/endship.png'; // Example path
-    const game = new Game(backgroundImagePath);
-    
-    // Alternative: Create game without background image
-    // const game = new Game();
+    // Create game instance without background image for now
+    // You can add a background image path here when you have one
+    // const backgroundImagePath = 'images/end-background.jpg'; // Example path
+    const game = new Game(); // No background for now
     
     // You can also set the background image later:
     // game.setBackgroundImage('path/to/another/background.png');

@@ -83,8 +83,18 @@ const CONFIG = {
         SPEED: 8,
         JUMP_FORCE: 20,
         MAX_HEALTH: 100,
-        PROJECTILE_COOLDOWN: 500, // ms
+        PROJECTILE_COOLDOWN: 1000, // ms between shots
         COLOR: "#9b30ff" // Purple for End theme
+    },
+    
+    // Projectile settings
+    PROJECTILE: {
+        WIDTH: 20,
+        HEIGHT: 6,
+        SPEED: 30,
+        DAMAGE: 1,
+        MAX_DISTANCE: 2000, // Maximum travel distance
+        COLOR: "#FFD700" // Gold color
     },
     
     // Enemy settings

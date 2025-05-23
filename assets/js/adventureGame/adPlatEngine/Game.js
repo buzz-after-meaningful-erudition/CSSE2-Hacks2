@@ -2,7 +2,6 @@
  * Platformer Game Engine
  * Main game logic and rendering
  */
-
 class Game {
     constructor(backgroundImageSrc = null) {
         // Initialize canvas
@@ -20,6 +19,7 @@ class Game {
         // Game objects
         this.player1 = null;
         this.enemies = [];
+        this.projectiles = [];
         
         // Background image handling
         this.backgroundImage = null;
@@ -82,8 +82,14 @@ class Game {
         // Reset player health
         this.player1.health = this.player1.maxHealth;
         
+        // Initialize shooting properties
+        this.player1.lastShotTime = 0;
+        
         // Create enemies
         this.spawnEnemies();
+        
+        // Clear projectiles
+        this.projectiles = [];
         
         // Update UI
         UI.updateHealthBars(this.player1);
@@ -200,11 +206,29 @@ class Game {
         // Update enemies
         this.updateEnemies();
         
+        // Update projectiles
+        this.updateProjectiles();
+        
         // Check collisions
         this.checkCollisions();
         
         // Update UI
         UI.updateHealthBars(this.player1);
+    }
+    
+    /**
+     * Update all projectiles
+     */
+    updateProjectiles() {
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.projectiles[i];
+            projectile.update();
+            
+            // Remove inactive projectiles
+            if (!projectile.isActive) {
+                this.projectiles.splice(i, 1);
+            }
+        }
     }
     
     /**
@@ -229,6 +253,7 @@ class Game {
     checkCollisions() {
         if (!this.player1 || this.player1.health <= 0) return;
         
+        // Check player-enemy collisions
         for (const enemy of this.enemies) {
             const collisionResult = enemy.checkPlayerCollision(this.player1);
             
@@ -239,22 +264,29 @@ class Game {
                 // Apply knockback to player
                 const knockbackDirection = this.player1.x < enemy.x ? -1 : 1;
                 this.player1.applyForce(knockbackDirection * 8, -5, 10);
-                
-                // Show damage message
-                UI.showMessage("Ouch! Enemy hit!", 1500);
-                
+    
                 // Check if player is dead
                 if (this.player1.health <= 0) {
                     this.player1.health = 0;
                     UI.showMessage("Game Over!", 3000);
                     setTimeout(() => {
                         this.setGameState(CONFIG.STATES.GAME_OVER);
-                    }, 1000);
+                    }, 200);
                 }
-                
-            } else if (collisionResult === 'kill_enemy') {
-                // Player killed enemy (already handled in enemy class)
-                UI.showMessage("Enemy defeated!", 1000);
+            }
+        }
+        
+        // Check projectile-enemy collisions
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.projectiles[i];
+            
+            for (const enemy of this.enemies) {
+                if (projectile.checkEnemyCollision(enemy)) {
+                    
+                    // Remove the projectile
+                    this.projectiles.splice(i, 1);
+                    break; // Exit enemy loop since projectile is gone
+                }
             }
         }
     }
@@ -276,6 +308,39 @@ class Game {
             this.player1.moveRight();
         } else {
             this.player1.stopMoving();
+        }
+        
+        // Shooting
+        if (InputHandler.keys.space) {
+            this.handlePlayerShoot();
+        }
+    }
+    
+    /**
+     * Handle player shooting
+     */
+    handlePlayerShoot() {
+        if (!this.player1) return;
+        
+        const currentTime = performance.now();
+        
+        // Check cooldown
+        if (!this.player1.lastShotTime || 
+            currentTime - this.player1.lastShotTime >= CONFIG.PLAYER.PROJECTILE_COOLDOWN) {
+            
+            // Create projectile
+            const projectileX = this.player1.direction > 0 ? 
+                this.player1.x + this.player1.width : 
+                this.player1.x - CONFIG.PROJECTILE.WIDTH;
+            const projectileY = this.player1.y + this.player1.height / 2 - CONFIG.PROJECTILE.HEIGHT / 2;
+            
+            const projectile = new Projectile(projectileX, projectileY, this.player1.direction);
+            this.projectiles.push(projectile);
+            
+            this.player1.lastShotTime = currentTime;
+            
+            // Visual feedback
+            UI.showMessage("Arrow shot!", 500);
         }
     }
     
@@ -342,6 +407,11 @@ class Game {
         // Draw enemies
         for (const enemy of this.enemies) {
             enemy.draw(this.ctx);
+        }
+        
+        // Draw projectiles
+        for (const projectile of this.projectiles) {
+            projectile.draw(this.ctx);
         }
         
         // Restore the canvas state
