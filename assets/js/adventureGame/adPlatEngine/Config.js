@@ -61,10 +61,10 @@ function getCurrentEnemyConfig() {
 }
 
 const CONFIG = {
-    // Canvas settings
+    // Canvas settings - NOW FULLSCREEN
     CANVAS: {
-        WIDTH: 1920,
-        HEIGHT: 1080
+        WIDTH: window.innerWidth,
+        HEIGHT: window.innerHeight
     },
     
     // Game settings
@@ -108,18 +108,18 @@ const CONFIG = {
         SPAWN_POINTS: ENEMY_SPAWNS.END // Default spawn points
     },
     
-    // Environment settings
+    // Environment settings - UPDATED FOR FULLSCREEN
     ENVIRONMENT: {
-        FLOOR_Y: 980,
+        FLOOR_Y: window.innerHeight - 100, // Dynamic floor based on screen height
         PLATFORMS: PLATFORM_CONFIGS.END, 
         FLOOR_ACTIVE: true,
         PITS: [], // Can add pit locations here
         WALLS: [], // Can add wall locations here
         WORLD_BOUNDS: {
             LEFT: 0,
-            RIGHT: 1920,
+            RIGHT: window.innerWidth, // Dynamic width
             TOP: 0,
-            BOTTOM: 1080
+            BOTTOM: window.innerHeight // Dynamic height
         }
     },
     

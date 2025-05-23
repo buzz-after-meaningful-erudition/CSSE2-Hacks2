@@ -1,74 +1,66 @@
 /**
- * End Ship Platformer - UI Management
- * Handles UI updates and interactions
+ * End Ship Platformer - UI Manager
+ * Handles user interface updates and messaging
  */
 
 const UI = {
     /**
-     * Initialize UI
+     * Initialize UI elements
      */
     init: function() {
-        // Add resize handler
-        window.addEventListener('resize', this.adjustForScreenSize);
-        this.adjustForScreenSize();
+        // No status message container to initialize anymore
+        console.log('UI initialized for fullscreen mode');
     },
     
     /**
-     * Adjust UI elements based on screen size
-     */
-    adjustForScreenSize: function() {
-        const gameContainer = document.querySelector('.game-container');
-        
-        // Adjust game container width
-        if (gameContainer) {
-            const maxWidth = Math.min(window.innerWidth * 0.95, CONFIG.CANVAS.WIDTH);
-            gameContainer.style.width = `${maxWidth}px`;
-        }
-    },
-    
-    /**
-     * Show a message in the status bar
-     * @param {String} message - Message to display
-     * @param {Number} duration - How long to show message (ms)
-     */
-    showMessage: function(message, duration = 2000) {
-        const statusElement = document.getElementById('status-message');
-        if (statusElement) {
-            // Store original message
-            const originalMessage = statusElement.textContent;
-            
-            // Set new message
-            statusElement.textContent = message;
-            
-            // Reset after duration
-            if (duration > 0) {
-                setTimeout(() => {
-                    statusElement.textContent = originalMessage;
-                }, duration);
-            }
-        }
-    },
-    
-    /**
-     * Update health bars
-     * @param {Character} player - Player character
+     * Update health bars for players
+     * @param {Player} player - Player object
      */
     updateHealthBars: function(player) {
         if (player) {
-            const playerHealthBar = document.getElementById('player1-health');
-            if (playerHealthBar) {
-                const healthPercentage = (player.health / player.maxHealth) * 100;
-                playerHealthBar.style.width = `${healthPercentage}%`;
-                
-                // Change color based on health - using End theme colors
-                if (healthPercentage < 25) {
-                    playerHealthBar.style.backgroundColor = '#df72ff'; // Light pink-purple
-                } else if (healthPercentage < 50) {
-                    playerHealthBar.style.backgroundColor = '#b342ff'; // Medium purple
-                } else {
-                    playerHealthBar.style.backgroundColor = '#9b30ff'; // Bright purple
-                }
+            const healthPercentage = (player.health / player.maxHealth) * 100;
+            const healthBar = document.getElementById('player1-health');
+            if (healthBar) {
+                healthBar.style.width = healthPercentage + '%';
             }
+        }
+    },
+    
+    /**
+     * Show a temporary message (now just logs to console since no status area)
+     * @param {String} message - Message to display
+     * @param {Number} duration - Duration in milliseconds
+     */
+    showMessage: function(message, duration = 2000) {
+        // Since we removed the status message area, just log to console
+        // You could implement a temporary overlay here if desired
+        console.log(`Game Message: ${message}`);
+        
+        // Optional: Could add a temporary floating message system here
+        // For now, keeping it simple without the bottom message area
+    },
+    
+    /**
+     * Update player name display
+     * @param {String} name - Player name
+     */
+    updatePlayerName: function(name) {
+        const nameElement = document.getElementById('player1-name');
+        if (nameElement) {
+            nameElement.textContent = name;
+        }
+    },
+    
+    /**
+     * Show/hide loading indicator (if needed)
+     * @param {Boolean} show - Whether to show loading
+     */
+    showLoading: function(show) {
+        // Could implement a loading overlay here if needed
+        if (show) {
+            console.log('Loading...');
+        } else {
+            console.log('Loading complete');
         }
     }
 };

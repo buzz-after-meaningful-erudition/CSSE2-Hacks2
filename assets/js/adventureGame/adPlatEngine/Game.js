@@ -73,6 +73,20 @@ class Game {
     }
     
     /**
+     * Handle canvas resize - called externally when window resizes
+     */
+    handleResize() {
+        // Update canvas dimensions
+        this.canvas.width = CONFIG.CANVAS.WIDTH;
+        this.canvas.height = CONFIG.CANVAS.HEIGHT;
+        
+        // Force a redraw
+        if (this.currentState !== CONFIG.STATES.PLAYING) {
+            this.drawGame();
+        }
+    }
+    
+    /**
      * Initialize game by creating player and setting up UI
      */
     initGame() {

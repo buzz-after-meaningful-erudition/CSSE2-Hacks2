@@ -5,7 +5,7 @@
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('End Ship Platformer - Game Initializing');
+    console.log('End Ship Platformer - Fullscreen Game Initializing');
     
     // Initialize UI
     UI.init();
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // You can also set the background image later:
     // game.setBackgroundImage('path/to/another/background.png');
     
-    // Handle window resizing
+    // Handle window resizing for fullscreen
     window.addEventListener('resize', resizeGame);
     resizeGame();
     
@@ -30,38 +30,54 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     /**
-     * Resizes the game canvas based on window size
+     * Resizes the game for fullscreen mode
      */
     function resizeGame() {
-        const gameContainer = document.querySelector('.game-container');
-        const aspectRatio = CONFIG.CANVAS.WIDTH / CONFIG.CANVAS.HEIGHT;
+        // Update CONFIG values for new screen size
+        CONFIG.CANVAS.WIDTH = window.innerWidth;
+        CONFIG.CANVAS.HEIGHT = window.innerHeight;
         
-        // Get window dimensions
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
+        // Update all scaled configurations
+        updateConfigForResize();
         
-        // Set max width/height
-        const maxWidth = Math.min(windowWidth * 0.95, CONFIG.CANVAS.WIDTH);
-        const maxHeight = Math.min(windowHeight * 0.8, CONFIG.CANVAS.HEIGHT);
-        
-        // Calculate dimensions that maintain aspect ratio
-        let newWidth = maxWidth;
-        let newHeight = newWidth / aspectRatio;
-        
-        if (newHeight > maxHeight) {
-            newHeight = maxHeight;
-            newWidth = newHeight * aspectRatio;
+        // Update canvas size if game exists
+        if (window.game && window.game.canvas) {
+            window.game.handleResize();
+            
+            // Reposition existing game objects if they exist
+            if (window.game.player1) {
+                // Scale player position
+                const scaleX = CONFIG.CANVAS.WIDTH / CONFIG.CANVAS.BASE_WIDTH;
+                const scaleY = CONFIG.CANVAS.HEIGHT / CONFIG.CANVAS.BASE_HEIGHT;
+                
+                // Keep player proportionally positioned
+                const playerRelativeX = window.game.player1.x / (CONFIG.CANVAS.WIDTH / scaleX);
+                const playerRelativeY = window.game.player1.y / (CONFIG.CANVAS.HEIGHT / scaleY);
+                
+                window.game.player1.x = Math.min(playerRelativeX * scaleX, CONFIG.CANVAS.WIDTH - window.game.player1.width);
+                window.game.player1.y = Math.min(playerRelativeY * scaleY, CONFIG.ENVIRONMENT.FLOOR_Y - window.game.player1.height);
+            }
+            
+            // Update enemy positions if they exist
+            if (window.game.enemies) {
+                const scaleX = CONFIG.CANVAS.WIDTH / CONFIG.CANVAS.BASE_WIDTH;
+                const scaleY = CONFIG.CANVAS.HEIGHT / CONFIG.CANVAS.BASE_HEIGHT;
+                
+                window.game.enemies.forEach(enemy => {
+                    // Keep enemies proportionally positioned
+                    const enemyRelativeX = enemy.x / (CONFIG.CANVAS.WIDTH / scaleX);
+                    const enemyRelativeY = enemy.y / (CONFIG.CANVAS.HEIGHT / scaleY);
+                    
+                    enemy.x = Math.min(enemyRelativeX * scaleX, CONFIG.CANVAS.WIDTH - enemy.width);
+                    enemy.y = Math.min(enemyRelativeY * scaleY, CONFIG.ENVIRONMENT.FLOOR_Y - enemy.height);
+                });
+            }
         }
         
-        // Apply new dimensions
-        gameContainer.style.width = `${newWidth}px`;
-        
-        // Update canvas
-        const canvas = document.getElementById('game-canvas');
-        canvas.style.height = `${Math.min(800, newHeight - 150)}px`; // Subtract header/footer height
+        console.log(`Game resized to: ${CONFIG.CANVAS.WIDTH}x${CONFIG.CANVAS.HEIGHT}`);
     }
     
-    console.log('End Ship Platformer - Game Initialized');
+    console.log('End Ship Platformer - Fullscreen Game Initialized');
 });
 
 // Global function to change background image during gameplay
