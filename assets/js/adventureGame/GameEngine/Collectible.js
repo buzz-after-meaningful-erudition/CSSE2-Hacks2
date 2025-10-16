@@ -5,7 +5,7 @@ import DialogueSystem from "../DialogueSystem.js";
 class Collectible extends Character {
     constructor(data = null, gameEnv = null) {
         super(data, gameEnv);
-        this.interact = data?.interact; // Interact function
+        this.interact = data?.interact;
         this.alertTimeout = null;
         this.isInteracting = false; // Flag to track if currently interacting
         this.handleKeyDownBound = this.handleKeyDown.bind(this);

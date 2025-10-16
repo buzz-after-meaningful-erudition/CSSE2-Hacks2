@@ -1,6 +1,6 @@
 ---
 layout: finance
-title: Crypto Mining Simulator 
+title: Crypto Mining Simulator
 type: issueshen i
 permalink: /crypto/mining
 ---
@@ -9,7 +9,6 @@ permalink: /crypto/mining
 <!-- Any CSS or styling adjustments should be done @ {base}/assets/css/crypto.css  -->
 
 <html lang="en">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,8 +17,6 @@ permalink: /crypto/mining
     <link href="https://unpkg.com/intro.js/minified/introjs.min.css" rel="stylesheet">
     <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
     <link rel="stylesheet" href="{{site.baseurl}}/assets/css/crypto.css"/>
-</head>
-<body>
     <div id="notification" class="notification"></div>
     <div class="main-content">
         <!-- Tutorial Help Button -->
@@ -42,6 +39,7 @@ permalink: /crypto/mining
                         <div>
                             <div class="stat-label">Pending Crypto Balance</div>
                             <div class="stat-value text-yellow-400" id="pending-balance">0.00000000</div>
+                            <script type="module" src="{{site.baseurl}}/assets/js/crypto/portfolio.js"></script>
                             <span class="text-sm text-blue-400 cursor-pointer hover:underline mt-1 inline-block" onclick="openCryptoDetailsModal()">View all crypto balances &rarr;</span>
                         </div>
                         <div>
@@ -49,8 +47,8 @@ permalink: /crypto/mining
                             <div class="stat-value text-green-400" id="usd-value">$0.00</div>
                         </div>
                         <div>
-                            <div class="stat-label" id="pool-info">Min. Payout</div>
-                            <div class="stat-value text-yellow-400" id="pool-info">0.001 BTC</div>
+                            <div class="stat-label" id="pool-info-label"></div>
+                            <div class="stat-value text-yellow-400" id="pool-info-value"></div>
                         </div>
                     </div>
                 </div>
@@ -88,6 +86,37 @@ permalink: /crypto/mining
                             <div class="stat-label">Power Draw</div>
                             <div class="stat-value text-blue-400" id="power-draw">0W</div>
                         </div>
+                        <div>
+                            <div class="stat-label">Current Energy Plan</div>
+                            <div class="stat-value text-green-400" id="current-energy-plan">Loading...</div>
+                            <script type="module">
+                                import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+                                async function fetchCurrentEnergyPlan() {
+                                    const planElem = document.getElementById('current-energy-plan');
+                                    if (!planElem) return;
+                                    try {
+                                    const response = await fetch(`${javaURI}/api/mining/energy`, {
+                                        ...fetchOptions,
+                                        credentials: 'include'
+                                    });
+                                    if (!response.ok) {
+                                        if (response.status === 401) {
+                                        throw new Error('Please log in');
+                                        } else {
+                                        throw new Error(`Failed to fetch (Status: ${response.status})`);
+                                        }
+                                    }
+                                    const data = await response.json();
+                                    planElem.textContent = data.supplierName
+                                        ? `${data.supplierName} (EEM: ${data.EEM || '0.00'})`
+                                        : 'No supplier selected';
+                                    } catch (error) {
+                                    planElem.textContent = error.message || 'Error loading energy plan';
+                                    }
+                                }
+                                document.addEventListener('DOMContentLoaded', fetchCurrentEnergyPlan);
+                            </script>
+                        </div>
                     </div>
                 </div>
                 <!-- Profitability -->
@@ -106,18 +135,25 @@ permalink: /crypto/mining
                 </div>
             </div>
             <!-- Mining Controls -->
-            <div class="flex justify-center mt-8 mb-8">
-                <div class="flex justify-between items-center gap-4">
+            <div class="flex flex-col items-center gap-4">
+                <div class="flex flex-row justify-center items-center gap-4">
                     <a href="{{site.baseurl}}/crypto/energy" class="mining-button energy-plan">
                         <span>Energy Plan</span>
                     </a>
-                    <script type="module" src="{{site.baseurl}}/assets/js/crypto/front.js"/></script>
+                    <script type="module" src="{{site.baseurl}}/assets/js/crypto/front.js"></script>
                     <button id="start-mining" class="mining-button start-mining" onclick="toggleMining()">
                         <span>Start Mining</span>
                     </button>
                     <a href="{{site.baseurl}}/crypto/energy-store" class="mining-button energy-store">
                         <span>Energy Store</span>
                     </a>
+                </div>
+                <!-- Mining Countdown Timer -->
+                <div id="mining-countdown" class="mt-4 hidden">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full bg-red-500 animate-pulse"></div>
+                        <span class="text-lg font-mono text-red-400">Next Reward in: <span id="countdown-timer">15:00</span></span>
+                    </div>
                 </div>
             </div>
             <!-- Performance Charts -->
@@ -156,9 +192,9 @@ permalink: /crypto/mining
             <button class="tutorial-button tutorial-button-primary" onclick="startTutorial()">Start Tour</button>
             <button class="tutorial-button tutorial-button-tertiary" onclick="skipTutorial()">SKIP</button>
             <button class="tutorial-button tutorial-button-tertiary" onclick="neverShowTutorial()">Never Show</button>
-            <script src="{{site.baseurl}}/assets/js/crypto/tutorial.js"></script>
         </div>
     </div>
+    <script type="module" src="{{site.baseurl}}/assets/js/crypto/tutorial.js"></script>
     <!-- GPU Shop Modal -->
     <div id="gpu-shop-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
@@ -246,6 +282,4 @@ permalink: /crypto/mining
                 </div>
             </div>
         </div>
-        <script src="{{site.baseurl}}/assets/js/crypto/portfolio.js"></script>
     </div>
-</body>

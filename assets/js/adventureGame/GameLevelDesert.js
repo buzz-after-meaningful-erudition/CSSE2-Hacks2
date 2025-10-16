@@ -12,7 +12,6 @@ import GameLevelEnd from './GameLevelEnd.js';
 
 class GameLevelDesert {
   constructor(gameEnv) {
-    // Values dependent on this.gameEnv.create()
     let width = gameEnv.innerWidth;
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;

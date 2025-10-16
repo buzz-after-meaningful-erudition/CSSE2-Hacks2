@@ -20,7 +20,7 @@ class Npc extends Character {
         if (data?.dialogues) {
             this.dialogueSystem = new DialogueSystem({
                 dialogues: data.dialogues,
-                // Pass unique ID to prevent conflicts
+                
                 id: this.uniqueId
             });
         } else {

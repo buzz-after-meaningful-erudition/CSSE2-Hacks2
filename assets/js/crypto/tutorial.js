@@ -1,4 +1,11 @@
+import { javaURI, fetchOptions } from '../api/config.js';
+
 console.log("tutorial.js is loaded.");
+
+// Make functions globally available
+window.startTutorial = startTutorial;
+window.skipTutorial = skipTutorial;
+window.neverShowTutorial = neverShowTutorial;
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Check login status first

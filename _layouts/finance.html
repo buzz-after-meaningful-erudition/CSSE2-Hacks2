@@ -103,6 +103,7 @@ async function loadUserBalance() {
 
     const userData = await response.json();
     
+
     // Ensure the balance element exists
     const balanceElement = document.getElementById('navbarBalance');
     if (!balanceElement) {
@@ -110,12 +111,31 @@ async function loadUserBalance() {
     }
     
     // Format balance with proper decimal places
-    const balance = Number(userData.balance).toFixed(2);
+    const balance = Number(userData.banks.balance).toFixed(2);
     balanceElement.textContent = `$${balance}`;
     
   } catch (error) {
     console.error("Error loading balance:", error);
     const balanceElement = document.getElementById('navbarBalance');
+
+    const usernameElement = document.getElementById('navbarUsername');
+    const balanceElement = document.getElementById('navbarBalance');
+    
+    if (usernameElement) {
+      usernameElement.textContent = userData.uid || "Guest";
+    }
+    if (balanceElement) {
+      balanceElement.textContent = `$${Number(userData.banks.balance).toFixed(2)}`;
+    }
+  } catch (error) {
+    console.error("Error loading user info:", error);
+    const usernameElement = document.getElementById('navbarUsername');
+    const balanceElement = document.getElementById('navbarBalance');
+    
+    if (usernameElement) {
+      usernameElement.textContent = "Error";
+    }
+
     if (balanceElement) {
       balanceElement.textContent = "$0.00";
     }

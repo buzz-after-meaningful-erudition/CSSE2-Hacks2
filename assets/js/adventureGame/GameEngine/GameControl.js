@@ -26,11 +26,7 @@ class GameControl {
         this.globalInteractionHandlers = new Set();
     }
 
-    /**
-     * Starts the game by 
-     * 1. Adding an exit key listener
-     * 2. Transitioning to the first level
-     */
+    
     start() {
         this.addExitKeyListener();
         this.transitionToLevel();

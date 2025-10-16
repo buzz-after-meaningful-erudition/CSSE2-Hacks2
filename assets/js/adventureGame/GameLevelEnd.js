@@ -19,7 +19,6 @@ class GameLevelEnd {
     let height = gameEnv.innerHeight;
     let path = gameEnv.path;
     
-    // Track ender eyes collection
     this.eyesCollected = 0;
     this.endTime = null;
     this.startTime = Date.now();

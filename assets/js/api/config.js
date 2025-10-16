@@ -1,4 +1,7 @@
-export const baseurl = "/portfolio_2025";
+---
+---
+
+export const baseurl = "{{ site.baseurl }}";
 
 export var pythonURI;
 if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
